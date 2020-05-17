@@ -1,0 +1,26 @@
+service: team27
+
+provider:
+  name: google
+  stage: prod
+  runtime: nodejs8
+  region: us-central1
+  project: premium-client-267819
+  credentials: /users/Meir/Desktop/keyfile.json
+
+plugins:
+  - serverless-google-cloudfunctions
+
+package:
+  exclude:
+    - node_modules/**
+    - .gitignore
+    - .git/**
+
+functions:
+  main:
+    handler: mainHandler
+    events:
+      - event:
+          eventType: providers/cloud.pubsub/eventTypes/topic.publish
+          resource: 'projects/${self:provider.project, ""}/topics/minute-topic'
