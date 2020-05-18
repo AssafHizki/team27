@@ -1,18 +1,9 @@
 'use strict';
-const TelegramBot = require('node-telegram-bot-api');
-const env = require('./environment/environment').env();
+const log = require('./clients/loggerClient').log;
+const userMsgHandler = require('./user/userMsgHandler');
 
-exports.userHandler = async (event, _context) => {
-  const TOKEN = env.TOKEN;
-  const MANAGER = env.MANAGER
-  const bot = new TelegramBot(TOKEN);
-  await bot.sendMessage(MANAGER, `Server ${env.ENV_NAME} ${env.VERSION} is running`);
-  try {
-
-  } catch (error) {
-    console.log(error)
-    await bot.sendMessage(MANAGER, "Main Handler Error");
-    await bot.sendMessage(MANAGER, error.message);
-  }
+exports.userHandler = async (request, response) => {
+  const ret = await userMsgHandler.newMsg(request)
+  response.status(ret.status).send(ret.body);
 };
 

@@ -6,7 +6,7 @@ let bot = false;
 
 const getBot = () => {
     if (!bot) {
-        bot = new TelegramBot(TOKEN, {polling: true});
+        bot = new TelegramBot(TOKEN);
     }
     return bot
 }

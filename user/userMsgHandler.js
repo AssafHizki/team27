@@ -18,9 +18,9 @@ const getSafeData = (req) => {
 const newMsg = async (req) => {
     try {
         safeData = getSafeData(req)
-        if (!safeData.id) {
+        if (!safeData.id || !safeData.text) {
             return {
-                body: {status: 'fail', reason: 'No userId in request'},
+                body: {status: 'fail', reason: 'No userId or text in the request'},
                 status: 400
             }
         }

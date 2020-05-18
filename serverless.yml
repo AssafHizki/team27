@@ -5,7 +5,7 @@ provider:
   stage: prod
   runtime: nodejs8
   region: us-central1
-  project: premium-client-267819
+  project: team27-277512
   credentials: /users/Meir/Desktop/team27keyfile.json
 
 plugins:
@@ -21,4 +21,4 @@ functions:
   user:
     handler: userHandler
     events:
-      - http: create
+      - http: userMessage
