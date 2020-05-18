@@ -1,28 +1,21 @@
-const TelegramBot = require('node-telegram-bot-api');
 const env = require('./environment/environment').env();
-
-const TOKEN = env.TOKEN;
-const bot = new TelegramBot(TOKEN, {polling: true});
-const MANAGER = env.MANAGER
+const bot = require('./clients/telegramClient').getBot();
+const volunteerMsgHandler = require('./volunteer/volunteerMsgHandler');
+const userMsgHandler = require('./user/userMsgHandler');
 
 console.log(`===> Team27 ${env.ENV_NAME} ${env.VERSION} is running...`)
 
-function sleep(ms) {
-  return new Promise(resolve => setTimeout(resolve, ms));
-}
+bot.on('message', async (msg) => {
+  const volunteerId = msg.from.id;
+  const volunteerName = msg.from.first_name;
+  await volunteerMsgHandler.newMsg(volunteerId, volunteerName, msg.text)
+});
 
+const express = require('express')
+const app = express()
+const port = 8088
 
-async function run() {
-  await bot.sendMessage(MANAGER, `Server ${env.ENV_NAME} ${env.VERSION} is running`);
-  while(true) {
-    try {
-      await sleep(1000);
-    } catch (error) {
-      console.error("Got an Error!", error)
-      bot.sendMessage(MANAGER, 'Got an Error');
-      bot.sendMessage(MANAGER, error.message);
-    }
-  }
-}
-
-run()
+app.use(express.json());
+app.use(express.urlencoded());
+app.post('/message', async (req, res) => await res.send(userMsgHandler.newMsg(req.body.userId, req.body.userName, req.body.text)))
+app.listen(port, () => console.log(`Team27 app listening at http://localhost:${port}`))

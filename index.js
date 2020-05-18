@@ -1,7 +1,6 @@
 'use strict';
 const TelegramBot = require('node-telegram-bot-api');
 const env = require('./environment/environment').env();
-const redis = require('./clients/redisClient')
 
 exports.mainHandler = async (event, _context) => {
   const TOKEN = env.TOKEN;
