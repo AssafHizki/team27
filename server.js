@@ -17,5 +17,8 @@ const port = 8088
 
 app.use(express.json());
 app.use(express.urlencoded());
-app.post('/message', async (req, res) => await res.send(userMsgHandler.newMsg(req.body.userId, req.body.userName, req.body.text)))
+app.post('/message', async (req, res) => {
+  ret = await userMsgHandler.newMsg(req)
+  await res.send(ret.body, ret.status)
+})
 app.listen(port, () => console.log(`Team27 app listening at http://localhost:${port}`))

@@ -6,7 +6,7 @@ provider:
   runtime: nodejs8
   region: us-central1
   project: premium-client-267819
-  credentials: /users/Meir/Desktop/keyfile.json
+  credentials: /users/Meir/Desktop/team27keyfile.json
 
 plugins:
   - serverless-google-cloudfunctions
@@ -18,9 +18,7 @@ package:
     - .git/**
 
 functions:
-  main:
-    handler: mainHandler
+  user:
+    handler: userHandler
     events:
-      - event:
-          eventType: providers/cloud.pubsub/eventTypes/topic.publish
-          resource: 'projects/${self:provider.project, ""}/topics/minute-topic'
+      - http: create

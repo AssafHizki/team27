@@ -2,7 +2,7 @@
 const TelegramBot = require('node-telegram-bot-api');
 const env = require('./environment/environment').env();
 
-exports.mainHandler = async (event, _context) => {
+exports.userHandler = async (event, _context) => {
   const TOKEN = env.TOKEN;
   const MANAGER = env.MANAGER
   const bot = new TelegramBot(TOKEN);
