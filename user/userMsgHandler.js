@@ -25,7 +25,7 @@ const newMsg = async (req) => {
             }
         }
         log(`User: ${safeData.name}(${safeData.id}): ${safeData.text}`)
-        bot.sendMessage('', safeData.text);
+        bot.sendMessage('', safeData.text); 
         return {
             body: {status: 'success'},
             status: 200
