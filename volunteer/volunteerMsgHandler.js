@@ -10,11 +10,7 @@ const sendMsgToUser = async (userId, userName, text) => {
         "userName": userName,
         "text": text
     })
-    .then(res => {
-        if (res && res.data) {
-            log(res.data)
-        }
-    })
+    .then(res => res)
     .catch(error => {
         log(error, level='ERROR');
     })
@@ -22,8 +18,8 @@ const sendMsgToUser = async (userId, userName, text) => {
 
 const newMsg = async (id, name, msg) => {
     log(`Volunteer: ${name}(${id}): ${msg}`);
-    res = await sendMsgToUser("BPvVJhhlxofoy1TAAAAB", "someuser", msg);
-    log(res)
+    const res = await sendMsgToUser("acjTImePJmCG01SJAAAA", "someuser", msg);
+    log(`Chat response: ${res}`)
     return {
         body: {status: 'success'},
         status: 200
