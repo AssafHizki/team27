@@ -37,7 +37,7 @@ const notifyAllNewUser = async () => {
 const notifyAllAvailable = async (text) => {
     volunteers.forEach(async volunteer => {
         const volunteerKey = getVolunteerKey(volunteer.id)
-        const volunteerObject = redis.get(volunteerKey)
+        const volunteerObject = await redis.get(volunteerKey)
         if (volunteerObject.status == STATUS_AVAILABLE) {
             await bot.sendMessage(volunteerObject.id, text);
         }
