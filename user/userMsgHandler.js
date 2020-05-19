@@ -51,7 +51,7 @@ const newMsg = async (req) => {
                 log(`User start: ${safeData.name}(${safeData.id})`);
                 await userDataHandler.createUser(safeData);
                 await volunteerDataHandler.addToPendingUsers(safeData);
-                await volunteerDataHandler.notifyAllNewUser();
+                await volunteerDataHandler.notifyAllNewUser(safeData.id);
             }
         } else if (safeData.type == 'end') {
             if (!existingUser) {
@@ -61,7 +61,7 @@ const newMsg = async (req) => {
                 log(`User end: ${safeData.name}(${safeData.id})`)
                 const assingedVolunteerId = await userDataHandler.findAssingedVolunteerId(safeData.id)
                 if (assingedVolunteerId) {
-                    await volunteerDataHandler.sendMessageToVolunteer(assingedVolunteerId, 'This conversation is closed / This conversation is end.');
+                    await volunteerDataHandler.sendMessageToVolunteer(assingedVolunteerId, 'This person has closed the conversation window. Thank you.');
                     await volunteerDataHandler.unassignVolunteer(assingedVolunteerId)
                     await userDataHandler.setConversationEnded(safeData.id);
                 } else {

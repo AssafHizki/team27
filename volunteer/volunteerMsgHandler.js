@@ -44,7 +44,7 @@ const newMsg = async (id, name, msg) => {
             await volunteerDataHandler.removeFromPendingUsers(userId)
             await volunteerDataHandler.sendUserPendingMessagesToVolunteer(volunteer.id, user.pendingMessages)
             await userDataHandler.clearPendingMessages(userId)
-            await volunteerDataHandler.notifyAllAvailable('Conversation was acquired by other volunteer, thank you.');
+            await volunteerDataHandler.notifyAllAvailable(`Session # ${userId.substr(userId.length - 2).toUpperCase()} is being assisted by another volunteer. Thank you.`);
             const res = await sendMsgToUser(userId, volunteer.name, msg, true);
             log(`Chat response2 (${userId}): ${JSON.stringify(res.status)}`)
         }
