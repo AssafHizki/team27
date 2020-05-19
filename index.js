@@ -21,5 +21,6 @@ exports.clearCommand = async (request, response) => {
   await volunteerDataHandler.clearPendingUsers()
   await volunteerDataHandler.clearVolunteers()
   log("CLEAR DONE!")
+  response.status(200).send('OK');
 };
 
