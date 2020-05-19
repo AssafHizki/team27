@@ -3,7 +3,7 @@ const log = require('../clients/loggerClient').log;
 const volunteerDataHandler = require('./volunteerDataHandler');
 const userDataHandler = require('../user/userDataHandler');
 
-const BASE_URL = 'http://1a71d7a6.ngrok.io'
+const BASE_URL = 'http://ed8db2fc.ngrok.io'
 const CHAT_URL = `${BASE_URL}/api/chat`
 
 const sendMsgToUser = async (userId, userName, text) => {
@@ -24,7 +24,7 @@ const newMsg = async (id, name, msg) => {
         const volunteer = await volunteerDataHandler.getOrCreateVolunteerById(id)
         if (volunteerDataHandler.isAssignedToUser(volunteer)) {
             const res = await sendMsgToUser(volunteer.asssginedUser, volunteer.name, msg);
-            log(`Chat response1: ${JSON.stringify(res)}`)
+            log(`Chat response1: ${JSON.stringify(res.status)}`)
         } else {
             const pending = await volunteerDataHandler.getPendingUsers()
             if (pending.length == 0) {
@@ -39,11 +39,11 @@ const newMsg = async (id, name, msg) => {
             }
             await volunteerDataHandler.assignUserToVolunteer(volunteer.id, userId)
             await userDataHandler.assignVolunteerToUser(userId, volunteer.id)
-            // Send pending messages
+            await volunteerDataHandler.sendUserPendingMessagesToVolunteer(volunteer.id, user.pendingMessages)
+            await userDataHandler.clearPendingMessages(user)
             await volunteerDataHandler.notifyAllAvailable('Conversation was acquired by other volunteer, thanks you.');
-            // Delete messages
             const res = await sendMsgToUser(userId, volunteer.name, msg);
-            log(`Chat response2: ${JSON.stringify(res)}`)
+            log(`Chat response2: ${JSON.stringify(res.status)}`)
         }
         return {
             body: {status: 'success'},

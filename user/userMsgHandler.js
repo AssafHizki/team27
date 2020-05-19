@@ -35,14 +35,14 @@ const newMsg = async (req) => {
             const assingedVolunteerId = await userDataHandler.findAssingedVolunteerId(safeData.id)
             if (!assingedVolunteerId) {
                 if (userDataHandler.isCreated(existingUser.status)) {
-                    await volunteerDataHandler.notifyAllAvailable(safeData.text);
-                    // await userDataHandler.addToPendingMessages(safeData);
+                    await userDataHandler.addToPendingMessages(safeData);
                 } else {
                     log(`No assinged volunteer to user (text)${safeData.id}`, level='ERROR');
                     return {body: {status: `unknown`}, status: 400}
                 }
+            } else {
+                await volunteerDataHandler.sendMessageToVolunteer(assingedVolunteerId, safeData.text);
             }
-            await volunteerDataHandler.sendMessageToVolunteer(assingedVolunteerId, safeData.text);
         } else if (safeData.type == 'start') {
             if (existingUser) {
                 log(`existingUser ${existingUser.id} start conversation`, level='WARNING');

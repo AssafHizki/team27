@@ -3,7 +3,7 @@ const bot = require('../clients/telegramClient').getBot();
 const log = require('../clients/loggerClient').log;
 const env = require('../environment/environment').env();
 
-const volunteerDbVersion = '3'
+const volunteerDbVersion = '16'
 
 const STATUS_IN_CONVERSATION = 'INCONVERSATION'
 const STATUS_AVAILABLE = 'AVAILABLE'
@@ -97,6 +97,12 @@ const isAssignedToUser = (volunteer) => {
     return volunteer.status != STATUS_AVAILABLE
 }
 
+const sendUserPendingMessagesToVolunteer = async (id, messages) => {
+    messages.forEach(async (message) => {
+        await bot.sendMessage(id, message);
+    });
+}
+
 module.exports = {
     notifyAllNewUser: notifyAllNewUser,
     sendMessageToVolunteer: sendMessageToVolunteer,
@@ -107,4 +113,5 @@ module.exports = {
     unassignVolunteer: unassignVolunteer,
     getOrCreateVolunteerById: getOrCreateVolunteerById,
     isAssignedToUser: isAssignedToUser,
+    sendUserPendingMessagesToVolunteer,
 }

@@ -1,7 +1,7 @@
 const redis = require('../clients/redisClient');
 const log = require('../clients/loggerClient').log;
 
-const userDbVersion = '3'
+const userDbVersion = '16'
 const STATUS_CREATED = 'CREATED'
 const STATUS_IN_CONVERSATION = 'INCONVERSATION'
 const STATUS_ENDED = 'ENDED'
@@ -12,7 +12,7 @@ const createUserObject = (safeData) => {
     return {
         id: safeData.id,
         name: safeData.name,
-        pendingMessage: [],
+        pendingMessages: [],
         status: STATUS_CREATED,
         createdTimestamp: Date.now(),
         asssginedVolunteer: null,
@@ -32,7 +32,7 @@ const isCreated = (status) => {
 const addToPendingMessages = async (safeData) => {
     const userKey = getUserKey(safeData.id)
     let userObject = await redis.get(userKey)
-    userObject.pendingMessage.push(safeData.text)
+    userObject.pendingMessages.push(safeData.text)
     await redis.set(userKey, userObject)
 }
 
@@ -73,6 +73,12 @@ const findAssingedVolunteerId = async (userId) => {
     }
 }
 
+const clearPendingMessages = async (user) => {
+    const userKey = getUserKey(user.id)
+    user.pendingMessages = []
+    await redis.set(userKey, user)
+}
+
 module.exports = {
     createUser: createUser,
     isCreated: isCreated,
@@ -82,4 +88,5 @@ module.exports = {
     setConversationEnded: setConversationEnded,
     getExistingUser: getExistingUser,
     findAssingedVolunteerId: findAssingedVolunteerId,
+    clearPendingMessages: clearPendingMessages,
 }
