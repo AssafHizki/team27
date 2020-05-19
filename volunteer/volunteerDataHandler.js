@@ -95,6 +95,9 @@ const getOrCreateVolunteerById = async (id) =>{
 const assignUserToVolunteer = async (volunteerId, userId) => {
     let volunteerObject = await getOrCreateVolunteerById(volunteerId)
     const volunteerKey = getVolunteerKey(volunteerId)
+    if (volunteerObject.asssginedUser) {
+        log(`Volunteer already have assigned user ${volunteerId}-${volunteerObject.asssginedUser}`, level='WARNING')
+    }
     volunteerObject.status = STATUS_IN_CONVERSATION
     volunteerObject.asssginedUser = userId
     await redis.set(volunteerKey, volunteerObject)
@@ -118,6 +121,20 @@ const sendUserPendingMessagesToVolunteer = async (id, messages) => {
     });
 }
 
+const removeFromPendingUsers = async (userId) => {
+    const key = getPendingUsersKey()
+    let pendingUsers = await redis.get(key)
+    if (!pendingUsers) {
+        return
+    }
+    var index = pendingUsers.indexOf(userId);
+    if (index == -1) {
+        return
+    }
+    pendingUsers.splice(index, 1);
+    await redis.set(key, pendingUsers)
+}
+
 module.exports = {
     notifyAllNewUser: notifyAllNewUser,
     sendMessageToVolunteer: sendMessageToVolunteer,
@@ -131,4 +148,5 @@ module.exports = {
     sendUserPendingMessagesToVolunteer,
     clearPendingUsers: clearPendingUsers,
     clearVolunteers: clearVolunteers,
+    removeFromPendingUsers: removeFromPendingUsers,
 }

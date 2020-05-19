@@ -3,14 +3,15 @@ const log = require('../clients/loggerClient').log;
 const volunteerDataHandler = require('./volunteerDataHandler');
 const userDataHandler = require('../user/userDataHandler');
 
-const BASE_URL = 'http://ed8db2fc.ngrok.io'
+const BASE_URL = 'https://discreetly-chat.herokuapp.com'
 const CHAT_URL = `${BASE_URL}/api/chat`
 
-const sendMsgToUser = async (userId, userName, text) => {
+const sendMsgToUser = async (userId, userName, text, isFirstMessage) => {
     return await axios.post(CHAT_URL, {
         userId: userId,
         userName: userName,
-        text: text
+        text: text,
+        isFirstMessage: isFirstMessage
     })
     .then(res => res)
     .catch(error => {
@@ -23,10 +24,11 @@ const newMsg = async (id, name, msg) => {
         log(`Volunteer: ${name}(${id}): ${msg}`);
         const volunteer = await volunteerDataHandler.getOrCreateVolunteerById(id)
         if (volunteerDataHandler.isAssignedToUser(volunteer)) {
-            const res = await sendMsgToUser(volunteer.asssginedUser, volunteer.name, msg);
+            const res = await sendMsgToUser(volunteer.asssginedUser, volunteer.name, msg, false);
             log(`Chat response1 (${volunteer.asssginedUser}): ${JSON.stringify(res.status)}`)
         } else {
             const pending = await volunteerDataHandler.getPendingUsers()
+            log(`Pending users: ${JSON.stringify(pending)}`)
             if (pending.length == 0) {
                 log(`No pending users for volunteer: ${volunteer.name}`)
                 return {body: {status: 'success'}, status: 200}
@@ -39,10 +41,11 @@ const newMsg = async (id, name, msg) => {
             }
             await volunteerDataHandler.assignUserToVolunteer(volunteer.id, userId)
             await userDataHandler.assignVolunteerToUser(userId, volunteer.id)
+            await volunteerDataHandler.removeFromPendingUsers(userId)
             await volunteerDataHandler.sendUserPendingMessagesToVolunteer(volunteer.id, user.pendingMessages)
             await userDataHandler.clearPendingMessages(userId)
-            await volunteerDataHandler.notifyAllAvailable('Conversation was acquired by other volunteer, thanks you.');
-            const res = await sendMsgToUser(userId, volunteer.name, msg);
+            await volunteerDataHandler.notifyAllAvailable('Conversation was acquired by other volunteer, thank you.');
+            const res = await sendMsgToUser(userId, volunteer.name, msg, true);
             log(`Chat response2 (${userId}): ${JSON.stringify(res.status)}`)
         }
         return {
