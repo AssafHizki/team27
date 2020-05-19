@@ -24,7 +24,7 @@ const newMsg = async (id, name, msg) => {
         const volunteer = await volunteerDataHandler.getOrCreateVolunteerById(id)
         if (volunteerDataHandler.isAssignedToUser(volunteer)) {
             const res = await sendMsgToUser(volunteer.asssginedUser, volunteer.name, msg);
-            log(`Chat response1: ${JSON.stringify(res.status)}`)
+            log(`Chat response1 (${volunteer.asssginedUser}): ${JSON.stringify(res.status)}`)
         } else {
             const pending = await volunteerDataHandler.getPendingUsers()
             if (pending.length == 0) {
@@ -40,10 +40,10 @@ const newMsg = async (id, name, msg) => {
             await volunteerDataHandler.assignUserToVolunteer(volunteer.id, userId)
             await userDataHandler.assignVolunteerToUser(userId, volunteer.id)
             await volunteerDataHandler.sendUserPendingMessagesToVolunteer(volunteer.id, user.pendingMessages)
-            await userDataHandler.clearPendingMessages(user)
+            await userDataHandler.clearPendingMessages(userId)
             await volunteerDataHandler.notifyAllAvailable('Conversation was acquired by other volunteer, thanks you.');
             const res = await sendMsgToUser(userId, volunteer.name, msg);
-            log(`Chat response2: ${JSON.stringify(res.status)}`)
+            log(`Chat response2 (${userId}): ${JSON.stringify(res.status)}`)
         }
         return {
             body: {status: 'success'},

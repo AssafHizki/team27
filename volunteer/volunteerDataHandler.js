@@ -3,7 +3,7 @@ const bot = require('../clients/telegramClient').getBot();
 const log = require('../clients/loggerClient').log;
 const env = require('../environment/environment').env();
 
-const volunteerDbVersion = '16'
+const volunteerDbVersion = '23'
 
 const STATUS_IN_CONVERSATION = 'INCONVERSATION'
 const STATUS_AVAILABLE = 'AVAILABLE'
@@ -21,7 +21,7 @@ const createVolunteerObject = (id, name) => {
     }
 }
 
-const getVolunteerKey = (id) => `user:${volunteerDbVersion}:${id}`.toUpperCase()
+const getVolunteerKey = (id) => `volunteer:${volunteerDbVersion}:${id}`.toUpperCase()
 const getPendingUsersKey = () => `pendingusers:${volunteerDbVersion}`
 
 const notifyAllNewUser = async () => {

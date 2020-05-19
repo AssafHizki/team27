@@ -1,7 +1,7 @@
 const redis = require('../clients/redisClient');
 const log = require('../clients/loggerClient').log;
 
-const userDbVersion = '16'
+const userDbVersion = '23'
 const STATUS_CREATED = 'CREATED'
 const STATUS_IN_CONVERSATION = 'INCONVERSATION'
 const STATUS_ENDED = 'ENDED'
@@ -57,7 +57,7 @@ const setConversationEnded = async (id) => {
     await redis.set(userKey, userObject)
 }
 
-const getExistingUser = async (id) =>{
+const getExistingUser = async (id) => {
     const userKey = getUserKey(id)
     return await redis.get(userKey)
 }
@@ -68,15 +68,16 @@ const findAssingedVolunteerId = async (userId) => {
         const userObject = await redis.get(userKey)
         return userObject.asssginedVolunteer;
     } catch (error) {
-        log(`No assingned volunteer to user ${userId}`, level='ERROR')
+        log(`No assingned volunteer to user ${userId}`, level = 'ERROR')
         return false
     }
 }
 
-const clearPendingMessages = async (user) => {
-    const userKey = getUserKey(user.id)
-    user.pendingMessages = []
-    await redis.set(userKey, user)
+const clearPendingMessages = async (userId) => {
+    const userKey = getUserKey(userId)
+    let userObject = await redis.get(userKey)
+    userObject.pendingMessages = []
+    await redis.set(userKey, userObject)
 }
 
 module.exports = {
