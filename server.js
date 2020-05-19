@@ -13,7 +13,7 @@ app.post('/userMessage', async (req, res) => {
 })
 
 app.post('/volunteerMessage', async (req, res) => {
-  if (req && req.body && req.body.message && req.body.message.id) {
+  if (req && req.body && req.body.message && req.body.message.from.id) {
     const volunteerId = req.body.message.from.id;
     const volunteerName = req.body.message.from.first_name;
     const ret = await volunteerMsgHandler.newMsg(volunteerId, volunteerName, req.body.message.text)

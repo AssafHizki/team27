@@ -1,4 +1,5 @@
 const asyncRedis = require('async-redis');
+const log = require('./loggerClient').log;
 const env = require('../environment/environment').env();
 
 let client = false;
@@ -7,7 +8,7 @@ const init_redis = async () => {
     client = asyncRedis.createClient(env.REDIS_PORT, env.REDIS_HOST);
     await client.auth(env.REDIS_PASSWORD);
     client.on("error", err => {
-        console.error(err);
+        log(err, level='ERROR');
     });
 }
 
@@ -26,8 +27,8 @@ const get = async (key) => {
         value = await client.get(key);
         return(JSON.parse(value))
     } catch (error) {
-        console.error(`Failed getting key from redis: ${key}`);
-        console.error(error);
+        log(`Failed getting key from redis: ${key}`, level='ERROR');
+        log(error, level='ERROR');
         return null;
     }
 }
