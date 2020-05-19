@@ -1,5 +1,6 @@
 const volunteerMsgHandler = require('./volunteer/volunteerMsgHandler');
 const userMsgHandler = require('./user/userMsgHandler');
+const volunteerDataHandler = require('./volunteer/volunteerDataHandler');
 
 const express = require('express')
 const app = express()
@@ -22,4 +23,11 @@ app.post('/volunteerMessage', async (req, res) => {
     res.status(500).send({status: 'unknown'});
   }
 })
+
+app.post('/clearDb', async (req, res) => {
+  await volunteerDataHandler.clearPendingUsers()
+  await volunteerDataHandler.clearVolunteers()
+  res.status(200).send('OK');
+})
+
 app.listen(port, () => console.log(`Team27 app listening at http://localhost:${port}`))

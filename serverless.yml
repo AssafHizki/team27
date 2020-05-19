@@ -27,3 +27,8 @@ functions:
     handler: volunteerMessage
     events:
       - http: volunteer
+
+  clear:
+    handler: clearCommand
+    events:
+      - http: clear

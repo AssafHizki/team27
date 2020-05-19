@@ -3,7 +3,7 @@ const bot = require('../clients/telegramClient').getBot();
 const log = require('../clients/loggerClient').log;
 const env = require('../environment/environment').env();
 
-const volunteerDbVersion = '23'
+const volunteerDbVersion = '25'
 
 const STATUS_IN_CONVERSATION = 'INCONVERSATION'
 const STATUS_AVAILABLE = 'AVAILABLE'
@@ -63,6 +63,21 @@ const getPendingUsers = async () => {
     return await redis.get(key) || []
 }
 
+const clearPendingUsers = async () => {
+    const key = getPendingUsersKey()
+    await redis.set(key, [])
+}
+
+const clearVolunteers = async () => {
+    volunteers.forEach(async volunteer => {
+        const volunteerKey = getVolunteerKey(volunteer.id)
+        let volunteerObject = await getOrCreateVolunteerById(volunteer.id)
+        volunteerObject.status = STATUS_AVAILABLE
+        volunteerObject.asssginedUser = null
+        await redis.set(volunteerKey, volunteerObject)
+    });
+}
+
 const getOrCreateVolunteerById = async (id) =>{
     const volunteerKey = getVolunteerKey(id)
     let volunteerObject = await redis.get(volunteerKey)
@@ -114,4 +129,6 @@ module.exports = {
     getOrCreateVolunteerById: getOrCreateVolunteerById,
     isAssignedToUser: isAssignedToUser,
     sendUserPendingMessagesToVolunteer,
+    clearPendingUsers: clearPendingUsers,
+    clearVolunteers: clearVolunteers,
 }
