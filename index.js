@@ -10,10 +10,15 @@ exports.userMessage = async (request, response) => {
 };
 
 exports.volunteerMessage = async (request, response) => {
-  const volunteerId = request.body.message.from.id;
-  const volunteerName = request.body.message.from.first_name;
-  const ret = await volunteerMsgHandler.newMsg(volunteerId, volunteerName, request.body.message.text)
-  response.status(ret.status).send(ret.body);
+  try {
+    const volunteerId = request.body.message.from.id;
+    const volunteerName = request.body.message.from.first_name;
+    const ret = await volunteerMsgHandler.newMsg(volunteerId, volunteerName, request.body.message.text)
+    response.status(ret.status).send(ret.body);
+  } catch (error) {
+    log(`Unknown Error from ${volunteerName} (${volunteerName}): ${error.message}`, level='Error')
+    response.status(200).send({});
+  }
 };
 
 exports.clearCommand = async (request, response) => {

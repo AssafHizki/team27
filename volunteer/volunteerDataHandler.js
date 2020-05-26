@@ -28,7 +28,7 @@ const notifyAllNewUser = async (id) => {
     volunteers.forEach(async volunteer => {
         let volunteerObject = await getOrCreateVolunteerById(volunteer.id)
         if (volunteerObject.status == STATUS_AVAILABLE) {
-            const msg = `Session # ${id.substr(id.length - 2).toUpperCase()} is waiting for assistance.\nSend any message to start the conversation.`
+            const msg = `Visitor # ${id.substr(-8,2).toUpperCase()} is waiting for assistance.\nSend any message to start the conversation.`
             await bot.sendMessage(volunteerObject.id, msg);
         }
     });

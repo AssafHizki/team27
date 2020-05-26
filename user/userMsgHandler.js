@@ -27,7 +27,7 @@ const newMsg = async (req) => {
         }
         const existingUser = await userDataHandler.getExistingUser(safeData.id)
         if (safeData.type == 'text') {
-            log(`User: ${safeData.name}(${safeData.id}): ${safeData.text}`)
+            log(`User: ${safeData.name}(${safeData.id}): ${safeData.text}`, level='DEBUG')
             if (!existingUser) {
                 log(`Got message from a non existing user ${safeData.id}`, level='ERROR')
                 return {body: {status: `unknown`}, status: 400}
