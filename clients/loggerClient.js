@@ -10,9 +10,10 @@ const log = (msg, level='INFO') => {
         bot.sendMessage(env.MANAGER, `${level}\n${msg}`);
     } else if (level=='DEBUG') {
         console.log(msg)
+    } else {
+        bot.sendMessage(env.MANAGER, `${level}\n${msg}`);
+        console.log(msg)
     }
-    bot.sendMessage(env.MANAGER, `${level}\n${msg}`);
-    console.log(msg)
 }
 
 module.exports = {

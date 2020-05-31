@@ -7,7 +7,6 @@ const BASE_URL = 'https://discreetly-chat.herokuapp.com'
 const CHAT_URL = `${BASE_URL}/api/chat`
 
 const sendMsgToUser = async (userId, userName, text, isFirstMessage) => {
-    
     return await axios.post(CHAT_URL, {
         userId: userId,
         userName: userName,
@@ -21,12 +20,16 @@ const sendMsgToUser = async (userId, userName, text, isFirstMessage) => {
 }
 
 const newMsg = async (id, name, msg) => {
-    log(`Volunteer: ${name}(${id}): ${msg}`);
+    log(`Volunteer: ${name}(${id}): ${msg}`, level='DEBUG');
     const volunteer = await volunteerDataHandler.getOrCreateVolunteerById(id)
-    if (volunteerDataHandler.isAssignedToUser(volunteer)) {
+    const command = volunteerDataHandler.getCommandFromMsg(msg)
+    const isTakeCommand = volunteerDataHandler.isTakeCommand(command)
+    const isEndCommand = volunteerDataHandler.isEndCommand(command)
+    const isAssignedToUser = volunteerDataHandler.isAssignedToUser(volunteer)
+    if (!command && isAssignedToUser) {
         const res = await sendMsgToUser(volunteer.asssginedUser, volunteer.name, msg, false);
-        log(`Chat response1 (${volunteer.asssginedUser}): ${JSON.stringify(res.status)}`, level='DEBUG')
-    } else {
+        log(`Chat response 1 (${volunteer.asssginedUser}): ${JSON.stringify(res.status)}`, level='DEBUG')
+    } else if (isTakeCommand && !isAssignedToUser) {
         const pending = await volunteerDataHandler.getPendingUsers()
         log(`Pending users: ${JSON.stringify(pending)}`)
         if (pending.length == 0) {
@@ -44,9 +47,22 @@ const newMsg = async (id, name, msg) => {
         await volunteerDataHandler.removeFromPendingUsers(userId)
         await volunteerDataHandler.sendUserPendingMessagesToVolunteer(volunteer.id, user.pendingMessages)
         await userDataHandler.clearPendingMessages(userId)
-        await volunteerDataHandler.notifyAllAvailable(`Visitor # ${userId.substr(-8,2).toUpperCase()} is being assisted by another volunteer. Thank you.`);
-        const res = await sendMsgToUser(userId, volunteer.name, msg, true);
-        log(`Chat response2 (${userId}): ${JSON.stringify(res.status)}`, level='DEBUG')
+        const userFriendlyId = userDataHandler.getUserFriendlyId(userId)
+        await volunteerDataHandler.notifyAllAvailable(`Visitor ${userFriendlyId} is being assisted by another volunteer. Thank you.`);
+        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has started`)
+        const res = await sendMsgToUser(userId, volunteer.name, "", true);
+        log(`Chat response 2 (${userId}): ${JSON.stringify(res.status)}`, level='DEBUG')
+    } else if (isEndCommand && isAssignedToUser) {
+        log(`Volunteer Command: ${name}(${id}): ${command}`);
+        const userId = volunteer.asssginedUser
+        const userFriendlyId = userDataHandler.getUserFriendlyId(userId)
+        await volunteerDataHandler.unassignUserToVolunteer(volunteer.id)
+        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has ended`)
+        await userDataHandler.unassignVolunteerToUser(userId, volunteer.id)
+        const res = await sendMsgToUser(userId, volunteer.name, "Conversation ended", true);
+        log(`Chat response 3 (${userId}): ${JSON.stringify(res.status)}`, level='DEBUG')
+    } else {
+        log(`Invalid volunteer flow: ${name}(${id}). Command: ${command}. Assinged: ${isAssignedToUser}`, level='ERROR');
     }
     return {
         body: {status: 'success'},

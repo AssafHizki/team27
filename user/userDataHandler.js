@@ -80,6 +80,18 @@ const clearPendingMessages = async (userId) => {
     await redis.set(userKey, userObject)
 }
 
+const unassignVolunteerToUser = async (userId, volunteerId) => {
+    const userKey = getUserKey(userId)
+    let userObject = await redis.get(userKey)
+    userObject.status = STATUS_ENDED
+    userObject.asssginedVolunteer = null
+    await redis.set(userKey, userObject)
+}
+
+const getUserFriendlyId = (id) => {
+    return `# ${id.substr(-8,2).toUpperCase().replace('_','Y').replace('-','Z')}`
+}
+
 module.exports = {
     createUser: createUser,
     isCreated: isCreated,
@@ -90,4 +102,6 @@ module.exports = {
     getExistingUser: getExistingUser,
     findAssingedVolunteerId: findAssingedVolunteerId,
     clearPendingMessages: clearPendingMessages,
+    unassignVolunteerToUser: unassignVolunteerToUser,
+    getUserFriendlyId: getUserFriendlyId,
 }

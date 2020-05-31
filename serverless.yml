@@ -3,7 +3,7 @@ service: team27
 provider:
   name: google
   stage: prod
-  runtime: nodejs8
+  runtime: nodejs10
   region: us-central1
   project: team27-277512
   credentials: /users/Meir/Desktop/team27keyfile.json

@@ -12,11 +12,11 @@ const init_redis = async () => {
     });
 }
 
-const set = async (key, value) => {
+const set = async (key, value, expirationInSeconds = 2592000) => { // 30 Days
     if (!client) {
         await init_redis();
     }
-    await client.set(key, JSON.stringify(value));
+    await client.set(key, JSON.stringify(value), 'EX', expirationInSeconds);
 }
 
 const get = async (key) => {

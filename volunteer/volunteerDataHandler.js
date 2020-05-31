@@ -1,12 +1,17 @@
+const log = require('../clients/loggerClient').log;
 const redis = require('../clients/redisClient');
 const bot = require('../clients/telegramClient').getBot();
-const log = require('../clients/loggerClient').log;
 const env = require('../environment/environment').env();
+const userDataHandler = require('../user/userDataHandler');
 
 const volunteerDbVersion = '25'
 
 const STATUS_IN_CONVERSATION = 'INCONVERSATION'
 const STATUS_AVAILABLE = 'AVAILABLE'
+
+const COMMAND_END_CONVERSATION = 'END_CONVERSATION'
+const COMMAND_TAKE_CONVERSATION= 'TAKE_CONVERSATION'
+
 
 const volunteers = env.VOLUNTEERS
 
@@ -28,7 +33,8 @@ const notifyAllNewUser = async (id) => {
     volunteers.forEach(async volunteer => {
         let volunteerObject = await getOrCreateVolunteerById(volunteer.id)
         if (volunteerObject.status == STATUS_AVAILABLE) {
-            const msg = `Visitor # ${id.substr(-8,2).toUpperCase()} is waiting for assistance.\nSend any message to start the conversation.`
+            const userFriendlyId = userDataHandler.getUserFriendlyId(id)
+            const msg = `Visitor ${userFriendlyId} is waiting for assistance.\nSend any message to start the conversation.`
             await bot.sendMessage(volunteerObject.id, msg);
         }
     });
@@ -103,6 +109,17 @@ const assignUserToVolunteer = async (volunteerId, userId) => {
     await redis.set(volunteerKey, volunteerObject)
 }
 
+const unassignUserToVolunteer = async (volunteerId) => {
+    let volunteerObject = await getOrCreateVolunteerById(volunteerId)
+    const volunteerKey = getVolunteerKey(volunteerId)
+    if (!volunteerObject.asssginedUser) {
+        log(`Volunteer not assigned to any user ${volunteerId}-${volunteerObject.asssginedUser}`, level='WARNING')
+    }
+    volunteerObject.status = STATUS_AVAILABLE
+    volunteerObject.asssginedUser = null
+    await redis.set(volunteerKey, volunteerObject)
+}
+
 const unassignVolunteer = async (volunteerId) => {
     const volunteerKey = getVolunteerKey(volunteerId)
     let volunteerObject = await redis.get(volunteerKey)
@@ -135,6 +152,24 @@ const removeFromPendingUsers = async (userId) => {
     await redis.set(key, pendingUsers)
 }
 
+const getCommandFromMsg = (msg) => {
+    if (msg == '/end_conversation') {
+        return COMMAND_END_CONVERSATION
+    }
+    if (msg == '/take_conversation') {
+        return COMMAND_TAKE_CONVERSATION
+    }
+    return null
+}
+
+const isEndCommand= (command) => {
+    return command == COMMAND_END_CONVERSATION
+}
+
+const isTakeCommand = (command) => {
+    return command == COMMAND_TAKE_CONVERSATION
+}
+
 module.exports = {
     notifyAllNewUser: notifyAllNewUser,
     sendMessageToVolunteer: sendMessageToVolunteer,
@@ -149,4 +184,8 @@ module.exports = {
     clearPendingUsers: clearPendingUsers,
     clearVolunteers: clearVolunteers,
     removeFromPendingUsers: removeFromPendingUsers,
+    getCommandFromMsg: getCommandFromMsg,
+    isEndCommand: isEndCommand,
+    isTakeCommand: isTakeCommand,
+    unassignUserToVolunteer: unassignUserToVolunteer,
 }
