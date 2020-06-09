@@ -37,20 +37,25 @@ const getOnShiftKey = () => `onshift:${volunteerDbVersion}`
 const notifyAllNewUser = async (id) => {
     volunteers.forEach(async volunteer => {
         let volunteerObject = await getOrCreateVolunteerById(volunteer.id)
-        if (volunteerObject.status == STATUS_AVAILABLE) {
+        const onShift = await isOnShift(volunteerObject.id)
+        const available = volunteerObject.status == STATUS_AVAILABLE
+        if (onShift && available) {
             const userFriendlyId = userDataHandler.getUserFriendlyId(id)
             const msg = `Visitor ${userFriendlyId} is waiting for assistance.\nSend any message to start the conversation.`
-            await bot.sendMessage(volunteerObject.id, msg);
+            await sendMessageToVolunteer(volunteerObject.id, msg);
         }
     });
 }
 
 const notifyAllAvailable = async (text) => {
     volunteers.forEach(async volunteer => {
-        const volunteerKey = getVolunteerKey(volunteer.id)
-        const volunteerObject = await redis.get(volunteerKey)
-        if (volunteerObject.status == STATUS_AVAILABLE) {
-            await bot.sendMessage(volunteerObject.id, text);
+        const onShift = isOnShift(volunteer.id)
+        if (onShift) {
+            const volunteerKey = getVolunteerKey(volunteer.id)
+            const volunteerObject = await redis.get(volunteerKey)
+            if (volunteerObject.status == STATUS_AVAILABLE) {
+                await sendMessageToVolunteer(volunteerObject.id, text);
+            }
         }
     });
 }
@@ -145,7 +150,7 @@ const isAssignedToUser = (volunteer) => {
 
 const sendUserPendingMessagesToVolunteer = async (id, messages) => {
     messages.forEach(async (message) => {
-        await bot.sendMessage(id, message);
+        await sendMessageToVolunteer(id, message);
     });
 }
 
