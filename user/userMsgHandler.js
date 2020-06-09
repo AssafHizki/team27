@@ -65,7 +65,8 @@ const newMsg = async (req) => {
                     await volunteerDataHandler.unassignVolunteer(assingedVolunteerId)
                     await userDataHandler.setConversationEnded(safeData.id);
                 } else {
-                    log(`No assinged volunteer to user (end conversation) ${existingUser.id}`, level='ERROR');
+                    await volunteerDataHandler.removeFromPendingUsers(safeData.id)
+                    log(`No assinged volunteer to user (end conversation) ${existingUser.id}`, level='WARNING');
                     return {body: {status: `unknown`}, status: 400}
                 }
             }

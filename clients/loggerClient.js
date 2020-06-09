@@ -6,7 +6,7 @@ const log = (msg, level='INFO') => {
         console.error(msg)
         bot.sendMessage(env.MANAGER, `${level}\n${msg}`);
     } else if (level=='WARNING') {
-        console.warning(msg)
+        console.warn(msg)
         bot.sendMessage(env.MANAGER, `${level}\n${msg}`);
     } else if (level=='DEBUG') {
         console.log(msg)
