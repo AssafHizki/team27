@@ -3,8 +3,7 @@ const log = require('../clients/loggerClient').log;
 const volunteerDataHandler = require('./volunteerDataHandler');
 const userDataHandler = require('../user/userDataHandler');
 
-const BASE_URL = 'https://discreetly-chat.herokuapp.com'
-const CHAT_URL = `${BASE_URL}/api/chat`
+const CHAT_URL = `${env.CLIENT_BASE_URL}/api/chat`
 
 const sendMsgToUser = async (userId, userName, text, isFirstMessage) => {
     return await axios.post(CHAT_URL, {

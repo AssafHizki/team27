@@ -51,4 +51,6 @@ node_modules
 # IDE
 env
 environment.local.js
+environment.prod.js
+environment.staging.js
 /environment/environment.local.js

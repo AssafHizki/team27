@@ -1,0 +1,34 @@
+service: team27
+
+provider:
+  name: google
+  stage: prod
+  runtime: nodejs10
+  region: us-central1
+  project: stageteam27
+  credentials: /users/Meir/Desktop/stageteam27keyfile.json
+
+plugins:
+  - serverless-google-cloudfunctions
+
+package:
+  exclude:
+    - node_modules/**
+    - .gitignore
+    - .git/**
+
+functions:
+  user:
+    handler: userMessage
+    events:
+      - http: user
+
+  volunteer:
+    handler: volunteerMessage
+    events:
+      - http: volunteer
+
+  clear:
+    handler: clearCommand
+    events:
+      - http: clear
