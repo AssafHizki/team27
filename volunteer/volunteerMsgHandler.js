@@ -2,6 +2,7 @@ const axios = require('axios');
 const log = require('../clients/loggerClient').log;
 const volunteerDataHandler = require('./volunteerDataHandler');
 const userDataHandler = require('../user/userDataHandler');
+const env = require('../environment/environment').env();
 
 const CHAT_URL = `${env.CLIENT_BASE_URL}/api/chat`
 
