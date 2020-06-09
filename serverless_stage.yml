@@ -1,4 +1,4 @@
-service: team27
+service: stageteam27
 
 provider:
   name: google
