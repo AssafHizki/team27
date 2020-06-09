@@ -169,7 +169,7 @@ const removeFromPendingUsers = async (userId) => {
 }
 const isOnShift = async (id) => {
     const onShift = await getOnShiftVolunteers()
-    return onShift.indexOf(id.toString()) >= 0 || onShift.indexOf(id)
+    return onShift.indexOf(id.toString()) >= 0 || onShift.indexOf(id) >= 0
 }
 
 const getOnShiftVolunteers = async () => {
