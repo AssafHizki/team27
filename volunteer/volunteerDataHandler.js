@@ -26,12 +26,13 @@ const createVolunteerObject = (id, name) => {
         id: id,
         name: name,
         status: STATUS_AVAILABLE,
-        asssginedUser: null,
+        asssginedUser: null
     }
 }
 
 const getVolunteerKey = (id) => `volunteer:${volunteerDbVersion}:${id}`.toUpperCase()
 const getPendingUsersKey = () => `pendingusers:${volunteerDbVersion}`
+const getOnShiftKey = () => `onshift:${volunteerDbVersion}`
 
 const notifyAllNewUser = async (id) => {
     volunteers.forEach(async volunteer => {
@@ -54,8 +55,13 @@ const notifyAllAvailable = async (text) => {
     });
 }
 
-const sendMessageToVolunteer = async (id, text) => {
-    await bot.sendMessage(id, text);
+const sendMessageToVolunteer = async (id, text, isSystem=true) => {
+    if (isSystem) {
+        const parse_mode = 'Markdown';
+        await bot.sendMessage(id, `*== System: ==*\n${text}`, { parse_mode });
+    } else {
+        await bot.sendMessage(id, text);
+    }
 }
 
 const addToPendingUsers = async (safeData) =>{
@@ -156,6 +162,38 @@ const removeFromPendingUsers = async (userId) => {
     pendingUsers.splice(index, 1);
     await redis.set(key, pendingUsers)
 }
+const isOnShift = async (id) => {
+    const onShift = await getOnShiftVolunteers()
+    return onShift.indexOf(id.toString()) >= 0
+}
+
+const getOnShiftVolunteers = async () => {
+    const key = getOnShiftKey()
+    return await redis.get(key) || []
+}
+
+const getOnShiftVolunteersByNames = async () => {
+    const ids = await getOnShiftVolunteers()
+    return ids.map(x => getVolunteerName(x))
+}
+
+const goOnShift = async (id) => {
+    const key = getOnShiftKey()
+    let onShift = await redis.get(key) || []
+    onShift.push(id)
+    onShift = [...new Set(onShift)]
+    await redis.set(key, onShift)
+}
+
+const goOffShift = async (id) => {
+    const key = getOnShiftKey()
+    let onShift = await redis.get(key) || []
+    const index = onShift.indexOf(id);
+    if (index > -1) {
+        onShift.splice(index, 1);
+        await redis.set(key, onShift)
+    }
+}
 
 const getCommandFromMsg = (msg) => {
     if (msg == '/end_conversation') {
@@ -225,4 +263,9 @@ module.exports = {
     isOnShiftCommand: isOnShiftCommand,
     isOffShiftCommand: isOffShiftCommand,
     isGetShiftCommand: isGetShiftCommand,
+    isOnShift: isOnShift,
+    getOnShiftVolunteers: getOnShiftVolunteers,
+    getOnShiftVolunteersByNames: getOnShiftVolunteersByNames,
+    goOnShift: goOnShift,
+    goOffShift: goOffShift,
 }

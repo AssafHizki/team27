@@ -19,15 +19,17 @@ const sendMsgToUser = async (userId, userName, text, isFirstMessage) => {
     })
 }
 
+const emptySuccessMassage = {
+    body: {status: 'success'},
+    status: 200
+}
+
 const newMsg = async (id, name, msg) => {
     log(`Volunteer: ${name}(${id}): ${msg}`, level='DEBUG');
     const volunteer = await volunteerDataHandler.getOrCreateVolunteerById(id)
     if (!volunteer) {
         log(`Volunteer not exist: ${name}(${id}): ${msg}`, level='WARNING');
-        return {
-            body: {status: 'success'},
-            status: 200
-        }
+        return emptySuccessMassage
     }
     const command = volunteerDataHandler.getCommandFromMsg(msg)
     const isTakeCommand = volunteerDataHandler.isTakeCommand(command)
@@ -40,12 +42,20 @@ const newMsg = async (id, name, msg) => {
     if (!command && isAssignedToUser) {
         const res = await sendMsgToUser(volunteer.asssginedUser, volunteer.name, msg, false);
         log(`Chat response 1 (${volunteer.asssginedUser}): ${JSON.stringify(res.status)}`, level='DEBUG')
-    } else if (isTakeCommand && !isAssignedToUser) {
+    } else if (isTakeCommand) {
+        if (isAssignedToUser) {
+            await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `You are already in a conversation`)
+            return emptySuccessMassage
+        }
+        if (!(await volunteerDataHandler.isOnShift(volunteer.id))) {
+            await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Can not take conversations off shift`)
+            return emptySuccessMassage
+        }
         const pending = await volunteerDataHandler.getPendingUsers()
         log(`Pending users: ${JSON.stringify(pending)}`)
         if (pending.length == 0) {
             log(`No pending users for volunteer: ${volunteer.name}`)
-            return {body: {status: 'success'}, status: 200}
+            return emptySuccessMassage
         }
         const userId = pending[0]
         let user = await userDataHandler.getUserById(userId)
@@ -74,15 +84,23 @@ const newMsg = async (id, name, msg) => {
         log(`Chat response 3 (${userId}): ${JSON.stringify(res.status)}`, level='DEBUG')
     } else if (isGetPendingUsersCommand) {
         const pending = await volunteerDataHandler.getPendingUsers()
-        const fiendlyPending = pending.map(id => userDataHandler.getUserFriendlyId(id))
-        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Pending users: ${JSON.stringify(fiendlyPending)}`)
+        const friendlyPending = pending.map(id => userDataHandler.getUserFriendlyId(id)).join(',')
+        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Pending users: ${friendlyPending}`)
+    } else if (isOnShiftCommand) {
+        await volunteerDataHandler.goOnShift(volunteer.id)
+        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `You are now on shift`)
+        log(`Volunteer is on shift: ${volunteer.name}(${volunteer.id})`);
+    } else if (isOffShiftCommand) {
+        await volunteerDataHandler.goOffShift(volunteer.id)
+        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `You are now off shift`)
+        log(`Volunteer is off shift: ${volunteer.name}(${volunteer.id})`);
+    } else if (isGetShiftCommand) {
+        const onShiftVolunteers = (await volunteerDataHandler.getOnShiftVolunteersByNames()).join(',')
+        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `On shift: ${onShiftVolunteers}`)
     } else {
         log(`Invalid volunteer flow: ${name}(${id}). Command: ${command}. Assinged: ${isAssignedToUser}`, level='ERROR');
     }
-    return {
-        body: {status: 'success'},
-        status: 200
-    }
+    return emptySuccessMassage
 }
 
 module.exports = {

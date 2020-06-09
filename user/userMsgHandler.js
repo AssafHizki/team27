@@ -41,7 +41,7 @@ const newMsg = async (req) => {
                     return {body: {status: `unknown`}, status: 400}
                 }
             } else {
-                await volunteerDataHandler.sendMessageToVolunteer(assingedVolunteerId, safeData.text);
+                await volunteerDataHandler.sendMessageToVolunteer(assingedVolunteerId, safeData.text, isSystem=false);
             }
         } else if (safeData.type == 'start') {
             if (existingUser) {
