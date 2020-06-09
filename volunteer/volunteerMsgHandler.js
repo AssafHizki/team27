@@ -22,9 +22,20 @@ const sendMsgToUser = async (userId, userName, text, isFirstMessage) => {
 const newMsg = async (id, name, msg) => {
     log(`Volunteer: ${name}(${id}): ${msg}`, level='DEBUG');
     const volunteer = await volunteerDataHandler.getOrCreateVolunteerById(id)
+    if (!volunteer) {
+        log(`Volunteer not exist: ${name}(${id}): ${msg}`, level='WARNING');
+        return {
+            body: {status: 'success'},
+            status: 200
+        }
+    }
     const command = volunteerDataHandler.getCommandFromMsg(msg)
     const isTakeCommand = volunteerDataHandler.isTakeCommand(command)
     const isEndCommand = volunteerDataHandler.isEndCommand(command)
+    const isOnShiftCommand = volunteerDataHandler.isOnShiftCommand(command)
+    const isOffShiftCommand = volunteerDataHandler.isOffShiftCommand(command)
+    const isGetShiftCommand = volunteerDataHandler.isGetShiftCommand(command)
+    const isGetPendingUsersCommand = volunteerDataHandler.isGetPendingUsersCommand(command)
     const isAssignedToUser = volunteerDataHandler.isAssignedToUser(volunteer)
     if (!command && isAssignedToUser) {
         const res = await sendMsgToUser(volunteer.asssginedUser, volunteer.name, msg, false);
@@ -61,6 +72,10 @@ const newMsg = async (id, name, msg) => {
         await userDataHandler.unassignVolunteerToUser(userId, volunteer.id)
         const res = await sendMsgToUser(userId, volunteer.name, "Conversation ended", true);
         log(`Chat response 3 (${userId}): ${JSON.stringify(res.status)}`, level='DEBUG')
+    } else if (isGetPendingUsersCommand) {
+        const pending = await volunteerDataHandler.getPendingUsers()
+        const fiendlyPending = pending.map(id => userDataHandler.getUserFriendlyId(id))
+        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Pending users: ${JSON.stringify(fiendlyPending)}`)
     } else {
         log(`Invalid volunteer flow: ${name}(${id}). Command: ${command}. Assinged: ${isAssignedToUser}`, level='ERROR');
     }

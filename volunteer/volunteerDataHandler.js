@@ -11,6 +11,10 @@ const STATUS_AVAILABLE = 'AVAILABLE'
 
 const COMMAND_END_CONVERSATION = 'END_CONVERSATION'
 const COMMAND_TAKE_CONVERSATION= 'TAKE_CONVERSATION'
+const COMMAND_GET_PENDING_USERS= 'GET_PENDING_USERS'
+const COMMAND_ON_SHIFT= 'ON_SHIFT'
+const COMMAND_OFF_SHIFT= 'OFF_SHIFT'
+const COMMAND_GET_SHIFT= 'GET_SHIFT'
 
 
 const volunteers = env.VOLUNTEERS
@@ -91,10 +95,11 @@ const getOrCreateVolunteerById = async (id) =>{
         const vName = getVolunteerName(id)
         if (!vName) {
             log(`Can not find volunteer name ${id}`, level='WARNING')
+            return null
         }
         volunteerObject = createVolunteerObject(id, vName)
+        await redis.set(volunteerKey, volunteerObject)
     }
-    await redis.set(volunteerKey, volunteerObject)
     return volunteerObject;
 }
 
@@ -159,6 +164,18 @@ const getCommandFromMsg = (msg) => {
     if (msg == '/take_conversation') {
         return COMMAND_TAKE_CONVERSATION
     }
+    if (msg == '/get_pending_users') {
+        return COMMAND_GET_PENDING_USERS
+    }
+    if (msg == '/go_on_shift') {
+        return COMMAND_ON_SHIFT
+    }
+    if (msg == '/go_off_shift') {
+        return COMMAND_OFF_SHIFT
+    }
+    if (msg == '/get_shift') {
+        return COMMAND_GET_SHIFT
+    }
     return null
 }
 
@@ -168,6 +185,22 @@ const isEndCommand= (command) => {
 
 const isTakeCommand = (command) => {
     return command == COMMAND_TAKE_CONVERSATION
+}
+
+const isGetPendingUsersCommand = (command) => {
+    return command == COMMAND_GET_PENDING_USERS
+}
+
+const isOnShiftCommand= (command) => {
+    return command == COMMAND_ON_SHIFT
+}
+
+const isOffShiftCommand = (command) => {
+    return command == COMMAND_OFF_SHIFT
+}
+
+const isGetShiftCommand= (command) => {
+    return command == COMMAND_GET_SHIFT
 }
 
 module.exports = {
@@ -188,4 +221,8 @@ module.exports = {
     isEndCommand: isEndCommand,
     isTakeCommand: isTakeCommand,
     unassignUserToVolunteer: unassignUserToVolunteer,
+    isGetPendingUsersCommand: isGetPendingUsersCommand,
+    isOnShiftCommand: isOnShiftCommand,
+    isOffShiftCommand: isOffShiftCommand,
+    isGetShiftCommand: isGetShiftCommand,
 }
