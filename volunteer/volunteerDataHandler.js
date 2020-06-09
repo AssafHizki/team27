@@ -10,11 +10,11 @@ const STATUS_IN_CONVERSATION = 'INCONVERSATION'
 const STATUS_AVAILABLE = 'AVAILABLE'
 
 const COMMAND_END_CONVERSATION = 'END_CONVERSATION'
-const COMMAND_TAKE_CONVERSATION= 'TAKE_CONVERSATION'
-const COMMAND_GET_PENDING_USERS= 'GET_PENDING_USERS'
-const COMMAND_ON_SHIFT= 'ON_SHIFT'
-const COMMAND_OFF_SHIFT= 'OFF_SHIFT'
-const COMMAND_GET_SHIFT= 'GET_SHIFT'
+const COMMAND_TAKE_CONVERSATION = 'TAKE_CONVERSATION'
+const COMMAND_GET_PENDING_USERS = 'GET_PENDING_USERS'
+const COMMAND_ON_SHIFT = 'ON_SHIFT'
+const COMMAND_OFF_SHIFT = 'OFF_SHIFT'
+const COMMAND_GET_SHIFT = 'GET_SHIFT'
 
 
 const volunteers = env.VOLUNTEERS
@@ -60,7 +60,7 @@ const notifyAllAvailable = async (text) => {
     });
 }
 
-const sendMessageToVolunteer = async (id, text, isSystem=true) => {
+const sendMessageToVolunteer = async (id, text, isSystem = true) => {
     if (isSystem) {
         const parse_mode = 'Markdown';
         await bot.sendMessage(id, `*== System: ==*\n${text}`, { parse_mode });
@@ -69,7 +69,7 @@ const sendMessageToVolunteer = async (id, text, isSystem=true) => {
     }
 }
 
-const addToPendingUsers = async (safeData) =>{
+const addToPendingUsers = async (safeData) => {
     const key = getPendingUsersKey()
     let pendingUsers = await redis.get(key)
     if (!pendingUsers) {
@@ -99,13 +99,13 @@ const clearVolunteers = async () => {
     });
 }
 
-const getOrCreateVolunteerById = async (id) =>{
+const getOrCreateVolunteerById = async (id) => {
     const volunteerKey = getVolunteerKey(id)
     let volunteerObject = await redis.get(volunteerKey)
     if (!volunteerObject) {
         const vName = getVolunteerName(id)
         if (!vName) {
-            log(`Can not find volunteer name ${id}`, level='WARNING')
+            log(`Can not find volunteer name ${id}`, level = 'WARNING')
             return null
         }
         volunteerObject = createVolunteerObject(id, vName)
@@ -118,7 +118,7 @@ const assignUserToVolunteer = async (volunteerId, userId) => {
     let volunteerObject = await getOrCreateVolunteerById(volunteerId)
     const volunteerKey = getVolunteerKey(volunteerId)
     if (volunteerObject.asssginedUser) {
-        log(`Volunteer already have assigned user ${volunteerId}-${volunteerObject.asssginedUser}`, level='WARNING')
+        log(`Volunteer already have assigned user ${volunteerId}-${volunteerObject.asssginedUser}`, level = 'WARNING')
     }
     volunteerObject.status = STATUS_IN_CONVERSATION
     volunteerObject.asssginedUser = userId
@@ -129,7 +129,7 @@ const unassignUserToVolunteer = async (volunteerId) => {
     let volunteerObject = await getOrCreateVolunteerById(volunteerId)
     const volunteerKey = getVolunteerKey(volunteerId)
     if (!volunteerObject.asssginedUser) {
-        log(`Volunteer not assigned to any user ${volunteerId}-${volunteerObject.asssginedUser}`, level='WARNING')
+        log(`Volunteer not assigned to any user ${volunteerId}-${volunteerObject.asssginedUser}`, level = 'WARNING')
     }
     volunteerObject.status = STATUS_AVAILABLE
     volunteerObject.asssginedUser = null
@@ -169,7 +169,7 @@ const removeFromPendingUsers = async (userId) => {
 }
 const isOnShift = async (id) => {
     const onShift = await getOnShiftVolunteers()
-    return onShift.indexOf(id.toString()) >= 0
+    return onShift.indexOf(id.toString()) >= 0 || onShift.indexOf(id)
 }
 
 const getOnShiftVolunteers = async () => {
@@ -222,7 +222,7 @@ const getCommandFromMsg = (msg) => {
     return null
 }
 
-const isEndCommand= (command) => {
+const isEndCommand = (command) => {
     return command == COMMAND_END_CONVERSATION
 }
 
@@ -234,7 +234,7 @@ const isGetPendingUsersCommand = (command) => {
     return command == COMMAND_GET_PENDING_USERS
 }
 
-const isOnShiftCommand= (command) => {
+const isOnShiftCommand = (command) => {
     return command == COMMAND_ON_SHIFT
 }
 
@@ -242,7 +242,7 @@ const isOffShiftCommand = (command) => {
     return command == COMMAND_OFF_SHIFT
 }
 
-const isGetShiftCommand= (command) => {
+const isGetShiftCommand = (command) => {
     return command == COMMAND_GET_SHIFT
 }
 
