@@ -61,11 +61,15 @@ const notifyAllAvailable = async (text) => {
 }
 
 const sendMessageToVolunteer = async (id, text, isSystem = true) => {
-    if (isSystem) {
-        const parse_mode = 'Markdown';
-        await bot.sendMessage(id, `*== System: ==*\n${text}`, { parse_mode });
-    } else {
-        await bot.sendMessage(id, text);
+    try {
+        if (isSystem) {
+            const parse_mode = 'Markdown';
+            await bot.sendMessage(id, `*== System: ==*\n${text}`, { parse_mode });
+        } else {
+            await bot.sendMessage(id, text);
+        }
+    } catch (error) {
+        log(`Failed to send message to volunteer ${id}. isSystem=${isSystem}`, level='ERROR')
     }
 }
 
