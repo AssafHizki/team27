@@ -11,8 +11,8 @@ const log = (msg, level='INFO') => {
     } else if (level=='DEBUG') {
         console.log(msg)
     } else {
-        bot.sendMessage(env.MANAGER, `${level}\n${msg}`);
         console.log(msg)
+        bot.sendMessage(env.MANAGER, `${level}\n${msg}`);
     }
 }
 

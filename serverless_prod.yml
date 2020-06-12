@@ -7,6 +7,8 @@ provider:
   region: us-central1
   project: team27-277512
   credentials: /users/Meir/Desktop/team27keyfile.json
+  environment:
+    IS_PROD: 'true'
 
 plugins:
   - serverless-google-cloudfunctions
