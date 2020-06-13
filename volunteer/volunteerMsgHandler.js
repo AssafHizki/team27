@@ -6,12 +6,24 @@ const env = require('../environment/environment').env();
 
 const CHAT_URL = `${env.CLIENT_BASE_URL}/api/chat`
 
-const sendMsgToUser = async (userId, userName, text, isFirstMessage) => {
+const sendStartChatToUser = async (userId, userName) => {
+    return await sendMsgToUser(userId, userName, '', 'volStart')
+}
+
+const sendEndChatToUser = async (userId, userName) => {
+    return await sendMsgToUser(userId, userName, '', 'volEnd')
+}
+
+const sendTypingToUser = async (userId, userName) => {
+    return await sendMsgToUser(userId, userName, '', 'volTyping')
+}
+
+const sendMsgToUser = async (userId, userName, text, eventType='text') => {
     return await axios.post(CHAT_URL, {
         userId: userId,
         userName: userName,
         text: text,
-        isFirstMessage: isFirstMessage
+        eventType: eventType
     })
     .then(res => res)
     .catch(error => {
@@ -40,7 +52,7 @@ const newMsg = async (id, name, msg) => {
     const isGetPendingUsersCommand = volunteerDataHandler.isGetPendingUsersCommand(command)
     const isAssignedToUser = volunteerDataHandler.isAssignedToUser(volunteer)
     if (!command && isAssignedToUser) {
-        const res = await sendMsgToUser(volunteer.asssginedUser, volunteer.name, msg, false);
+        const res = await sendMsgToUser(volunteer.asssginedUser, volunteer.name, msg);
         log(`Chat response 1 (${volunteer.asssginedUser}): ${JSON.stringify(res.status)}`, level='DEBUG')
     } else if (isTakeCommand) {
         if (isAssignedToUser) {
@@ -71,7 +83,7 @@ const newMsg = async (id, name, msg) => {
         const userFriendlyId = userDataHandler.getUserFriendlyId(userId)
         await volunteerDataHandler.notifyAllAvailable(`Visitor ${userFriendlyId} is being assisted by another volunteer. Thank you.`);
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has started`)
-        const res = await sendMsgToUser(userId, volunteer.name, "", true);
+        const res = await sendStartChatToUser(userId, volunteer.name);
         log(`Chat response 2 (${userId}): ${JSON.stringify(res.status)}`, level='DEBUG')
     } else if (isEndCommand && isAssignedToUser) {
         log(`Volunteer Command: ${name}(${id}): ${command}`);
@@ -80,7 +92,7 @@ const newMsg = async (id, name, msg) => {
         await volunteerDataHandler.unassignUserToVolunteer(volunteer.id)
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has ended`)
         await userDataHandler.unassignVolunteerToUser(userId, volunteer.id)
-        const res = await sendMsgToUser(userId, volunteer.name, "Conversation ended", true);
+        const res = await sendEndChatToUser(userId, volunteer.name);
         log(`Chat response 3 (${userId}): ${JSON.stringify(res.status)}`, level='DEBUG')
     } else if (isGetPendingUsersCommand) {
         const pending = await volunteerDataHandler.getPendingUsers()
