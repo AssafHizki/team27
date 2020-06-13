@@ -70,6 +70,16 @@ const newMsg = async (req) => {
                     return {body: {status: `unknown`}, status: 400}
                 }
             }
+        } else if (safeData.type == 'typing') {
+            if (!existingUser) {
+                log(`Non existingUser ${safeData.id} sent typing message`, level='WARNING');
+                return {body: {status: `unknown`}, status: 400}
+            }
+            const assingedVolunteerId = await userDataHandler.findAssingedVolunteerId(safeData.id)
+            if (!assingedVolunteerId) {
+                log(`No assinged volunteer to user (typing)${safeData.id}`, level='ERROR');
+            }
+            await volunteerDataHandler.userIsTyping(assingedVolunteerId)
         } else {
             log(`Invalid eventType: ${safeData.name}(${safeData.id})`);
             return {

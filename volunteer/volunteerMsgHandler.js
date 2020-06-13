@@ -15,7 +15,7 @@ const sendMsgToUser = async (userId, userName, text, isFirstMessage) => {
     })
     .then(res => res)
     .catch(error => {
-        log(error, level='ERROR');
+        log(error, 'ERROR');
     })
 }
 

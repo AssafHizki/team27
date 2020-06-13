@@ -204,6 +204,10 @@ const goOffShift = async (id) => {
     }
 }
 
+const userIsTyping = async (id) => {
+    await bot.sendChatAction(id, action = "typing");
+}
+
 const getCommandFromMsg = (msg) => {
     if (msg == '/end_conversation') {
         return COMMAND_END_CONVERSATION
@@ -251,30 +255,31 @@ const isGetShiftCommand = (command) => {
 }
 
 module.exports = {
-    notifyAllNewUser: notifyAllNewUser,
-    sendMessageToVolunteer: sendMessageToVolunteer,
-    addToPendingUsers: addToPendingUsers,
-    getPendingUsers: getPendingUsers,
-    assignUserToVolunteer: assignUserToVolunteer,
-    notifyAllAvailable: notifyAllAvailable,
-    unassignVolunteer: unassignVolunteer,
-    getOrCreateVolunteerById: getOrCreateVolunteerById,
-    isAssignedToUser: isAssignedToUser,
+    notifyAllNewUser,
+    sendMessageToVolunteer,
+    addToPendingUsers,
+    getPendingUsers,
+    assignUserToVolunteer,
+    notifyAllAvailable,
+    unassignVolunteer,
+    getOrCreateVolunteerById,
+    isAssignedToUser,
     sendUserPendingMessagesToVolunteer,
-    clearPendingUsers: clearPendingUsers,
-    clearVolunteers: clearVolunteers,
-    removeFromPendingUsers: removeFromPendingUsers,
-    getCommandFromMsg: getCommandFromMsg,
-    isEndCommand: isEndCommand,
-    isTakeCommand: isTakeCommand,
-    unassignUserToVolunteer: unassignUserToVolunteer,
-    isGetPendingUsersCommand: isGetPendingUsersCommand,
-    isOnShiftCommand: isOnShiftCommand,
-    isOffShiftCommand: isOffShiftCommand,
-    isGetShiftCommand: isGetShiftCommand,
-    isOnShift: isOnShift,
-    getOnShiftVolunteers: getOnShiftVolunteers,
-    getOnShiftVolunteersByNames: getOnShiftVolunteersByNames,
-    goOnShift: goOnShift,
-    goOffShift: goOffShift,
+    clearPendingUsers,
+    clearVolunteers,
+    removeFromPendingUsers,
+    getCommandFromMsg,
+    isEndCommand,
+    isTakeCommand,
+    unassignUserToVolunteer,
+    isGetPendingUsersCommand,
+    isOnShiftCommand,
+    isOffShiftCommand,
+    isGetShiftCommand,
+    isOnShift,
+    getOnShiftVolunteers,
+    getOnShiftVolunteersByNames,
+    goOnShift,
+    goOffShift,
+    userIsTyping,
 }
