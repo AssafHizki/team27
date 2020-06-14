@@ -1,5 +1,5 @@
 const redis = require('../clients/redisClient');
-const log = require('../clients/loggerClient').log;
+const logError = require('../clients/loggerClient').logError;
 
 const userDbVersion = '25'
 const STATUS_CREATED = 'CREATED'
@@ -68,7 +68,7 @@ const findAssingedVolunteerId = async (userId) => {
         const userObject = await redis.get(userKey)
         return userObject.asssginedVolunteer;
     } catch (error) {
-        log(`No assingned volunteer to user ${userId}`, level = 'ERROR')
+        logError(`No assingned volunteer to user ${userId}`)
         return false
     }
 }

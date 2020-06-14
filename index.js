@@ -1,5 +1,7 @@
 'use strict';
-const log = require('./clients/loggerClient').log;
+const logInfo = require('./clients/loggerClient').logInfo;
+const logError = require('./clients/loggerClient').logError;
+const logDebug = require('./clients/loggerClient').logDebug;
 const userMsgHandler = require('./user/userMsgHandler');
 const volunteerMsgHandler = require('./volunteer/volunteerMsgHandler');
 const volunteerDataHandler = require('./volunteer/volunteerDataHandler');
@@ -10,8 +12,8 @@ exports.userMessage = async (request, response) => {
   response.status(ret.status).send(ret.body);
 };
 
-const isFromChatManager = (message) => {
-  if (message && message.chat && message.chat.id && message.chat.id == env.MANAGER) {
+const isFromLogDest = (message) => {
+  if (message && message.chat && message.chat.id && message.chat.id == env.LOG_DEST) {
     return true
   }
   return false
@@ -19,8 +21,8 @@ const isFromChatManager = (message) => {
 
 exports.volunteerMessage = async (request, response) => {
   try {
-    log(JSON.stringify(request.body.message), 'DEBUG')
-    if (isFromChatManager(request.body.message)) {
+    logDebug(JSON.stringify(request.body.message))
+    if (isFromLogDest(request.body.message)) {
       return response.status(200).send({});
     }
     const volunteerId = request.body.message.from.id;
@@ -28,16 +30,16 @@ exports.volunteerMessage = async (request, response) => {
     const ret = await volunteerMsgHandler.newMsg(volunteerId, volunteerName, request.body.message.text)
     response.status(ret.status).send(ret.body);
   } catch (error) {
-    log(`Unknown Error from ${volunteerName} (${volunteerName}): ${error.message}`, 'ERROR')
+    logError(`Unknown Error: ${error.message}. Request: ${JSON.stringify(request.body.message)}`)
     response.status(200).send({});
   }
 };
 
 exports.clearCommand = async (request, response) => {
-  log("CLEAR COMMAND!")
+  logInfo("CLEAR COMMAND!")
   await volunteerDataHandler.clearPendingUsers()
   await volunteerDataHandler.clearVolunteers()
-  log("CLEAR DONE!")
+  logInfo("CLEAR DONE!")
   response.status(200).send('OK');
 };
 

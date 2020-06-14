@@ -1,4 +1,5 @@
-const log = require('../clients/loggerClient').log;
+const logError = require('../clients/loggerClient').logError;
+const logWarn = require('../clients/loggerClient').logWarn;
 const redis = require('../clients/redisClient');
 const bot = require('../clients/telegramClient').getBot();
 const env = require('../environment/environment').env();
@@ -69,7 +70,7 @@ const sendMessageToVolunteer = async (id, text, isSystem = true) => {
             await bot.sendMessage(id, text);
         }
     } catch (error) {
-        log(`Failed to send message to volunteer ${id}. isSystem=${isSystem}`, level='ERROR')
+        logError(`Failed to send message to volunteer ${id}. isSystem=${isSystem}`)
     }
 }
 
@@ -109,7 +110,7 @@ const getOrCreateVolunteerById = async (id) => {
     if (!volunteerObject) {
         const vName = getVolunteerName(id)
         if (!vName) {
-            log(`Can not find volunteer name ${id}`, level = 'WARNING')
+            logWarn(`Can not find volunteer name ${id}`)
             return null
         }
         volunteerObject = createVolunteerObject(id, vName)
@@ -122,7 +123,7 @@ const assignUserToVolunteer = async (volunteerId, userId) => {
     let volunteerObject = await getOrCreateVolunteerById(volunteerId)
     const volunteerKey = getVolunteerKey(volunteerId)
     if (volunteerObject.asssginedUser) {
-        log(`Volunteer already have assigned user ${volunteerId}-${volunteerObject.asssginedUser}`, level = 'WARNING')
+        logWarn(`Volunteer already have assigned user ${volunteerId}-${volunteerObject.asssginedUser}`)
     }
     volunteerObject.status = STATUS_IN_CONVERSATION
     volunteerObject.asssginedUser = userId
@@ -133,7 +134,7 @@ const unassignUserToVolunteer = async (volunteerId) => {
     let volunteerObject = await getOrCreateVolunteerById(volunteerId)
     const volunteerKey = getVolunteerKey(volunteerId)
     if (!volunteerObject.asssginedUser) {
-        log(`Volunteer not assigned to any user ${volunteerId}-${volunteerObject.asssginedUser}`, level = 'WARNING')
+        logWarn(`Volunteer not assigned to any user ${volunteerId}-${volunteerObject.asssginedUser}`)
     }
     volunteerObject.status = STATUS_AVAILABLE
     volunteerObject.asssginedUser = null

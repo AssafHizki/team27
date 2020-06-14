@@ -1,5 +1,7 @@
-const log = require('../clients/loggerClient').log;
-const userDataHandler = require('./userDataHandler');
+const logError = require('../clients/loggerClient').logError;
+const logInfo = require('../clients/loggerClient').logInfo;
+const logWarn = require('../clients/loggerClient').logWarn;
+const logDebug = require('../clients/loggerClient').logDebug;const userDataHandler = require('./userDataHandler');
 const volunteerDataHandler = require('../volunteer/volunteerDataHandler');
 
 const getSafeData = (req) => {
@@ -27,9 +29,9 @@ const newMsg = async (req) => {
         }
         const existingUser = await userDataHandler.getExistingUser(safeData.id)
         if (safeData.type == 'text') {
-            log(`User: ${safeData.name}(${safeData.id}): ${safeData.text}`, level='DEBUG')
+            logDebug(`User: ${safeData.name}(${safeData.id}): ${safeData.text}`)
             if (!existingUser) {
-                log(`Got message from a non existing user ${safeData.id}`, level='ERROR')
+                logError(`Got message from a non existing user ${safeData.id}`)
                 return {body: {status: `unknown`}, status: 400}
             }
             const assingedVolunteerId = await userDataHandler.findAssingedVolunteerId(safeData.id)
@@ -37,7 +39,7 @@ const newMsg = async (req) => {
                 if (userDataHandler.isCreated(existingUser.status)) {
                     await userDataHandler.addToPendingMessages(safeData);
                 } else {
-                    log(`No assinged volunteer to user (text)${safeData.id}`, level='ERROR');
+                    logError(`No assinged volunteer to user (text)${safeData.id}`);
                     return {body: {status: `unknown`}, status: 400}
                 }
             } else {
@@ -45,20 +47,20 @@ const newMsg = async (req) => {
             }
         } else if (safeData.type == 'start') {
             if (existingUser) {
-                log(`existingUser ${existingUser.id} start conversation`, level='WARNING');
+                logWarn(`existingUser ${existingUser.id} start conversation`);
                 return {body: {status: `unknown`}, status: 400}
             } else {
-                log(`User start: ${safeData.name}(${safeData.id})`);
+                logInfo(`User start: ${safeData.name}(${safeData.id})`);
                 await userDataHandler.createUser(safeData);
                 await volunteerDataHandler.addToPendingUsers(safeData);
                 await volunteerDataHandler.notifyAllNewUser(safeData.id);
             }
         } else if (safeData.type == 'end') {
             if (!existingUser) {
-                log(`Non existingUser ${safeData.id} end conversation`, level='WARNING');
+                logWarn(`Non existingUser ${safeData.id} end conversation`);
                 return {body: {status: `unknown`}, status: 400};
             } else {
-                log(`User end: ${safeData.name}(${safeData.id})`)
+                logInfo(`User end: ${safeData.name}(${safeData.id})`)
                 const assingedVolunteerId = await userDataHandler.findAssingedVolunteerId(safeData.id)
                 if (assingedVolunteerId) {
                     await volunteerDataHandler.sendMessageToVolunteer(assingedVolunteerId, 'This person has closed the conversation window. Thank you.');
@@ -66,22 +68,22 @@ const newMsg = async (req) => {
                     await userDataHandler.setConversationEnded(safeData.id);
                 } else {
                     await volunteerDataHandler.removeFromPendingUsers(safeData.id)
-                    log(`No assinged volunteer to user (end conversation) ${existingUser.id}`, level='WARNING');
+                    logWarn(`No assinged volunteer to user (end conversation) ${existingUser.id}`);
                     return {body: {status: `unknown`}, status: 400}
                 }
             }
         } else if (safeData.type == 'typing') {
             if (!existingUser) {
-                log(`Non existingUser ${safeData.id} sent typing message`, level='WARNING');
+                logWarn(`Non existingUser ${safeData.id} sent typing message`);
                 return {body: {status: `unknown`}, status: 400}
             }
             const assingedVolunteerId = await userDataHandler.findAssingedVolunteerId(safeData.id)
             if (!assingedVolunteerId) {
-                log(`No assinged volunteer to user (typing)${safeData.id}`, level='ERROR');
+                logError(`No assinged volunteer to user (typing)${safeData.id}`);
             }
             await volunteerDataHandler.userIsTyping(assingedVolunteerId)
         } else {
-            log(`Invalid eventType: ${safeData.name}(${safeData.id})`);
+            logInfo(`Invalid eventType: ${safeData.name}(${safeData.id})`);
             return {
                 body: {status: `Invalid eventType: ${safeData.type}`},
                 status: 400
@@ -92,7 +94,7 @@ const newMsg = async (req) => {
             status: 200
         }
     } catch (error) {
-        log(error, level='ERROR')
+        logError(error)
         return {
             body: {status: 'fail'},
             status: 500

@@ -1,5 +1,5 @@
 const asyncRedis = require('async-redis');
-const log = require('./loggerClient').log;
+const logError = require('../clients/loggerClient').logError;
 const env = require('../environment/environment').env();
 const dbPrefix = env.DB_PREFIX
 
@@ -9,7 +9,7 @@ const init_redis = async () => {
     client = asyncRedis.createClient(env.REDIS_PORT, env.REDIS_HOST);
     await client.auth(env.REDIS_PASSWORD);
     client.on("error", err => {
-        log(err, level='ERROR');
+        logError(err);
     });
 }
 
@@ -30,8 +30,8 @@ const get = async (key) => {
         value = await client.get(dbKey);
         return(JSON.parse(value))
     } catch (error) {
-        log(`Failed getting key from redis: ${dbKey}`, level='ERROR');
-        log(error, level='ERROR');
+        logError(`Failed getting key from redis: ${dbKey}`);
+        logError(error);
         return null;
     }
 }
