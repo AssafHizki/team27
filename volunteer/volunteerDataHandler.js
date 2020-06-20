@@ -13,14 +13,10 @@ const STATUS_AVAILABLE = 'AVAILABLE'
 const COMMAND_END_CONVERSATION = 'END_CONVERSATION'
 const COMMAND_TAKE_CONVERSATION = 'TAKE_CONVERSATION'
 const COMMAND_GET_PENDING_USERS = 'GET_PENDING_USERS'
-const COMMAND_ON_SHIFT = 'ON_SHIFT'
-const COMMAND_OFF_SHIFT = 'OFF_SHIFT'
-const COMMAND_GET_SHIFT = 'GET_SHIFT'
+const COMMAND_REGISTER = 'REGISTER'
+const COMMAND_UNREGISTER = 'UNREGISTER'
+const COMMAND_GET_REGISTERED = 'GET_REGISTERED'
 
-
-const volunteers = env.VOLUNTEERS
-
-const getVolunteerName = (id) => volunteers.find(x => x.id == id).name
 
 const createVolunteerObject = (id, name) => {
     return {
@@ -33,11 +29,10 @@ const createVolunteerObject = (id, name) => {
 
 const getVolunteerKey = (id) => `volunteer:${volunteerDbVersion}:${id}`.toUpperCase()
 const getPendingUsersKey = () => `pendingusers:${volunteerDbVersion}`
-const getOnShiftKey = () => `onshift:${volunteerDbVersion}`
 
 const notifyAllNewUser = async (id) => {
     volunteers.forEach(async volunteer => {
-        let volunteerObject = await getOrCreateVolunteerById(volunteer.id)
+        let volunteerObject = await getVolunteerById(volunteer.id)
         const onShift = await isOnShift(volunteerObject.id)
         const available = volunteerObject.status == STATUS_AVAILABLE
         if (onShift && available) {
@@ -97,30 +92,32 @@ const clearPendingUsers = async () => {
 const clearVolunteers = async () => {
     volunteers.forEach(async volunteer => {
         const volunteerKey = getVolunteerKey(volunteer.id)
-        let volunteerObject = await getOrCreateVolunteerById(volunteer.id)
+        let volunteerObject = await getVolunteerById(volunteer.id)
         volunteerObject.status = STATUS_AVAILABLE
         volunteerObject.asssginedUser = null
         await redis.set(volunteerKey, volunteerObject)
     });
 }
 
-const getOrCreateVolunteerById = async (id) => {
+const getVolunteerById = async (id) => {
+    const volunteerKey = getVolunteerKey(id)
+    return await redis.get(volunteerKey)
+}
+
+const createVolunteerById = async (id, name) => {
     const volunteerKey = getVolunteerKey(id)
     let volunteerObject = await redis.get(volunteerKey)
     if (!volunteerObject) {
-        const vName = getVolunteerName(id)
-        if (!vName) {
-            logWarn(`Can not find volunteer name ${id}`)
-            return null
-        }
-        volunteerObject = createVolunteerObject(id, vName)
+        volunteerObject = createVolunteerObject(id, name)
         await redis.set(volunteerKey, volunteerObject)
+    } else {
+        logError(`Can not create an existing volunteer ${name}(${id})`)
     }
     return volunteerObject;
 }
 
 const assignUserToVolunteer = async (volunteerId, userId) => {
-    let volunteerObject = await getOrCreateVolunteerById(volunteerId)
+    let volunteerObject = await getVolunteerById(volunteerId)
     const volunteerKey = getVolunteerKey(volunteerId)
     if (volunteerObject.asssginedUser) {
         logWarn(`Volunteer already have assigned user ${volunteerId}-${volunteerObject.asssginedUser}`)
@@ -131,7 +128,7 @@ const assignUserToVolunteer = async (volunteerId, userId) => {
 }
 
 const unassignUserToVolunteer = async (volunteerId) => {
-    let volunteerObject = await getOrCreateVolunteerById(volunteerId)
+    let volunteerObject = await getVolunteerById(volunteerId)
     const volunteerKey = getVolunteerKey(volunteerId)
     if (!volunteerObject.asssginedUser) {
         logWarn(`Volunteer not assigned to any user ${volunteerId}-${volunteerObject.asssginedUser}`)
@@ -209,6 +206,24 @@ const userIsTyping = async (id) => {
     await bot.sendChatAction(id, action = "typing");
 }
 
+const registerVolunteer = async (id, name, msg) => {
+    const secret = msg.split('/register ')
+    if (secret.length == 2 && secret[1] == env.REGISTRATION_SECRET) {
+        volunteer = await createVolunteerById(id, name)
+        await sendMessageToVolunteer(volunteer.id, `You are now registered`)
+        logWarn(`Volunteer registered successfully: ${name}(${id})`);
+        return emptySuccessMassage
+    } else {
+        logWarn(`Volunteer registered fail!: ${name}(${id})`);
+        await sendMessageToVolunteer(id, `Failed to register`)
+        return emptySuccessMassage
+    }
+}
+
+const unRegisterVolunteer = async () => {
+    // TODO HERE
+}
+
 const getCommandFromMsg = (msg) => {
     if (msg == '/end_conversation') {
         return COMMAND_END_CONVERSATION
@@ -219,14 +234,14 @@ const getCommandFromMsg = (msg) => {
     if (msg == '/get_pending_users') {
         return COMMAND_GET_PENDING_USERS
     }
-    if (msg == '/go_on_shift') {
-        return COMMAND_ON_SHIFT
+    if (msg == '/register') {
+        return COMMAND_REGISTER
     }
-    if (msg == '/go_off_shift') {
-        return COMMAND_OFF_SHIFT
+    if (msg == '/unregister') {
+        return COMMAND_UNREGISTER
     }
-    if (msg == '/get_shift') {
-        return COMMAND_GET_SHIFT
+    if (msg == '/get_registered') {
+        return COMMAND_GET_REGISTERED
     }
     return null
 }
@@ -243,16 +258,16 @@ const isGetPendingUsersCommand = (command) => {
     return command == COMMAND_GET_PENDING_USERS
 }
 
-const isOnShiftCommand = (command) => {
-    return command == COMMAND_ON_SHIFT
+const isRegisterCommand = (command) => {
+    return command == COMMAND_REGISTER
 }
 
-const isOffShiftCommand = (command) => {
-    return command == COMMAND_OFF_SHIFT
+const isUnRegisterCommand = (command) => {
+    return command == COMMAND_UNREGISTER
 }
 
-const isGetShiftCommand = (command) => {
-    return command == COMMAND_GET_SHIFT
+const isGetRegistered = (command) => {
+    return command == COMMAND_GET_REGISTERED
 }
 
 module.exports = {
@@ -263,7 +278,7 @@ module.exports = {
     assignUserToVolunteer,
     notifyAllAvailable,
     unassignVolunteer,
-    getOrCreateVolunteerById,
+    getVolunteerById,
     isAssignedToUser,
     sendUserPendingMessagesToVolunteer,
     clearPendingUsers,
@@ -274,13 +289,15 @@ module.exports = {
     isTakeCommand,
     unassignUserToVolunteer,
     isGetPendingUsersCommand,
-    isOnShiftCommand,
-    isOffShiftCommand,
-    isGetShiftCommand,
+    isGetRegistered,
+    isUnRegisterCommand,
+    isRegisterCommand,
     isOnShift,
     getOnShiftVolunteers,
     getOnShiftVolunteersByNames,
     goOnShift,
     goOffShift,
     userIsTyping,
+    registerVolunteer,
+    unRegisterVolunteer,
 }
