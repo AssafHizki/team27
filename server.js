@@ -20,7 +20,7 @@ app.post('/volunteerMessage', async (req, res) => {
     const ret = await volunteerMsgHandler.newMsg(volunteerId, volunteerName, req.body.message.text)
     res.status(ret.status).send(ret.body);
   } else {
-    res.status(500).send({status: 'unknown'});
+    res.status(400).send({status: 'unknown request'});
   }
 })
 

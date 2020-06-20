@@ -29,13 +29,14 @@ const createVolunteerObject = (id, name) => {
 
 const getVolunteerKey = (id) => `volunteer:${volunteerDbVersion}:${id}`.toUpperCase()
 const getPendingUsersKey = () => `pendingusers:${volunteerDbVersion}`
+const getRegisteredVolunteersKey = () => `registeredvol:${volunteerDbVersion}`
 
 const notifyAllNewUser = async (id) => {
+    const volunteers = getRegisteredVolunteers()
     volunteers.forEach(async volunteer => {
         let volunteerObject = await getVolunteerById(volunteer.id)
-        const onShift = await isOnShift(volunteerObject.id)
         const available = volunteerObject.status == STATUS_AVAILABLE
-        if (onShift && available) {
+        if (available) {
             const userFriendlyId = userDataHandler.getUserFriendlyId(id)
             const msg = `Visitor ${userFriendlyId} is waiting for assistance.\nSend any message to start the conversation.`
             await sendMessageToVolunteer(volunteerObject.id, msg);
@@ -44,14 +45,11 @@ const notifyAllNewUser = async (id) => {
 }
 
 const notifyAllAvailable = async (text) => {
+    const volunteers = getRegisteredVolunteers()
     volunteers.forEach(async volunteer => {
-        const onShift = isOnShift(volunteer.id)
-        if (onShift) {
-            const volunteerKey = getVolunteerKey(volunteer.id)
-            const volunteerObject = await redis.get(volunteerKey)
-            if (volunteerObject.status == STATUS_AVAILABLE) {
-                await sendMessageToVolunteer(volunteerObject.id, text);
-            }
+        const volunteerObject = await getVolunteerById(volunteer.id)
+        if (volunteerObject.status == STATUS_AVAILABLE) {
+            await sendMessageToVolunteer(volunteerObject.id, text);
         }
     });
 }
@@ -169,37 +167,20 @@ const removeFromPendingUsers = async (userId) => {
     pendingUsers.splice(index, 1);
     await redis.set(key, pendingUsers)
 }
-const isOnShift = async (id) => {
-    const onShift = await getOnShiftVolunteers()
-    return onShift.indexOf(id.toString()) >= 0 || onShift.indexOf(id) >= 0
-}
 
-const getOnShiftVolunteers = async () => {
-    const key = getOnShiftKey()
+const getRegisteredVolunteers = async () => {
+    const key = getRegisteredVolunteersKey()
     return await redis.get(key) || []
 }
 
-const getOnShiftVolunteersByNames = async () => {
-    const ids = await getOnShiftVolunteers()
-    return ids.map(x => getVolunteerName(x))
-}
-
-const goOnShift = async (id) => {
-    const key = getOnShiftKey()
-    let onShift = await redis.get(key) || []
-    onShift.push(id)
-    onShift = [...new Set(onShift)]
-    await redis.set(key, onShift)
-}
-
-const goOffShift = async (id) => {
-    const key = getOnShiftKey()
-    let onShift = await redis.get(key) || []
-    const index = onShift.indexOf(id);
-    if (index > -1) {
-        onShift.splice(index, 1);
-        await redis.set(key, onShift)
-    }
+const getRegisteredVolunteersByNames = async () => {
+    const ids = await getRegisteredVolunteers()
+    let names = []
+    await ids.map(async id => {
+        const volunteer = await getVolunteerById(id)
+        names.push[volunteer.name]
+    })
+    return names
 }
 
 const userIsTyping = async (id) => {
@@ -210,18 +191,29 @@ const registerVolunteer = async (id, name, msg) => {
     const secret = msg.split('/register ')
     if (secret.length == 2 && secret[1] == env.REGISTRATION_SECRET) {
         volunteer = await createVolunteerById(id, name)
+        const key = getRegisteredVolunteersKey()
+        let registered = await redis.get(key) || []
+        registered.push(id)
+        registered = [...new Set(registered)]
+        await redis.set(key, registered)
         await sendMessageToVolunteer(volunteer.id, `You are now registered`)
         logWarn(`Volunteer registered successfully: ${name}(${id})`);
-        return emptySuccessMassage
     } else {
         logWarn(`Volunteer registered fail!: ${name}(${id})`);
         await sendMessageToVolunteer(id, `Failed to register`)
-        return emptySuccessMassage
     }
 }
 
-const unRegisterVolunteer = async () => {
-    // TODO HERE
+const unRegisterVolunteer = async (id, name) => {
+    const key = getRegisteredVolunteersKey()
+    let registered = await redis.get(key) || []
+    const index = registered.indexOf(id);
+    if (index > -1) {
+        registered.splice(index, 1);
+        await redis.set(key, registered)
+    }
+    await sendMessageToVolunteer(id, `You are now unregistered`)
+    logInfo(`Volunteer is on unregistered: ${name}(${id})`);
 }
 
 const getCommandFromMsg = (msg) => {
@@ -292,12 +284,9 @@ module.exports = {
     isGetRegistered,
     isUnRegisterCommand,
     isRegisterCommand,
-    isOnShift,
-    getOnShiftVolunteers,
-    getOnShiftVolunteersByNames,
-    goOnShift,
-    goOffShift,
     userIsTyping,
     registerVolunteer,
     unRegisterVolunteer,
+    getRegisteredVolunteers,
+    getRegisteredVolunteersByNames,
 }

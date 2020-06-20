@@ -43,6 +43,7 @@ const emptySuccessMassage = {
 
 const newMsg = async (id, name, msg) => {
     logDebug(`Volunteer: ${name}(${id}): ${msg}`);
+    const command = volunteerDataHandler.getCommandFromMsg(msg)
     const isRegisterCommand = volunteerDataHandler.isRegisterCommand(command)
     if (isRegisterCommand) {
         await volunteerDataHandler.registerVolunteer(id, name, msg)
@@ -53,7 +54,6 @@ const newMsg = async (id, name, msg) => {
         logWarn(`Volunteer not exist: ${name}(${id}): ${msg}`);
         return emptySuccessMassage
     }
-    const command = volunteerDataHandler.getCommandFromMsg(msg)
     const isTakeCommand = volunteerDataHandler.isTakeCommand(command)
     const isEndCommand = volunteerDataHandler.isEndCommand(command)
     const isUnRegisterCommand = volunteerDataHandler.isUnRegisterCommand(command)
@@ -101,15 +101,10 @@ const newMsg = async (id, name, msg) => {
         const friendlyPending = pending.map(id => userDataHandler.getUserFriendlyId(id)).join(',')
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Pending users: ${friendlyPending}`)
     } else if (isUnRegisterCommand) {
-        await volunteerDataHandler.goOnSift(volunteer.id)
-        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `You are now on sift`)
-        logInfo(`Volunteer is on sift: ${volunteer.name}(${volunteer.id})`);
+        await volunteerDataHandler.unRegisterVolunteer(volunteer.id, volunteer.name)
     } else if (isGetRegistered) {
-        // await volunteerDataHandler.goOffSift(volunteer.id)
-        // await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `You are now off shft`)
-        // logInfo(`Volunteer is off shit: ${volunteer.name}(${voluntee.id})`);
-        // const onShftVolunteers = (await volunteerDataHandler.getOnSiftVolunteersByNames()).join(',')
-        // await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `On shit: ${onShftVolunteers}`)
+        const names = await volunteerDataHandler.getRegisteredVolunteersByNames()
+        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Registered: ${names}`)
     } else {
         logError(`Invalid volunteer flow: ${name}(${id}). Command: ${command}. Assinged: ${isAssignedToUser}`);
     }
