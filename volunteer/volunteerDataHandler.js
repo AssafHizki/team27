@@ -5,7 +5,7 @@ const bot = require('../clients/telegramClient').getBot();
 const env = require('../environment/environment').env();
 const userDataHandler = require('../user/userDataHandler');
 
-const volunteerDbVersion = '25'
+const volunteerDbVersion = '27'
 
 const STATUS_IN_CONVERSATION = 'INCONVERSATION'
 const STATUS_AVAILABLE = 'AVAILABLE'
@@ -32,9 +32,9 @@ const getPendingUsersKey = () => `pendingusers:${volunteerDbVersion}`
 const getRegisteredVolunteersKey = () => `registeredvol:${volunteerDbVersion}`
 
 const notifyAllNewUser = async (id) => {
-    const volunteers = getRegisteredVolunteers()
-    volunteers.forEach(async volunteer => {
-        let volunteerObject = await getVolunteerById(volunteer.id)
+    const volunteers = await getRegisteredVolunteers()
+    volunteers.forEach(async volunteer_id => {
+        let volunteerObject = await getVolunteerById(volunteer_id)
         const available = volunteerObject.status == STATUS_AVAILABLE
         if (available) {
             const userFriendlyId = userDataHandler.getUserFriendlyId(id)
@@ -45,9 +45,9 @@ const notifyAllNewUser = async (id) => {
 }
 
 const notifyAllAvailable = async (text) => {
-    const volunteers = getRegisteredVolunteers()
-    volunteers.forEach(async volunteer => {
-        const volunteerObject = await getVolunteerById(volunteer.id)
+    const volunteers = await getRegisteredVolunteers()
+    volunteers.forEach(async volunteer_id => {
+        const volunteerObject = await getVolunteerById(volunteer_id)
         if (volunteerObject.status == STATUS_AVAILABLE) {
             await sendMessageToVolunteer(volunteerObject.id, text);
         }
@@ -176,11 +176,10 @@ const getRegisteredVolunteers = async () => {
 const getRegisteredVolunteersByNames = async () => {
     const ids = await getRegisteredVolunteers()
     let names = []
-    await ids.map(async id => {
+    return await Promise.all(ids.map(async id => {
         const volunteer = await getVolunteerById(id)
-        names.push[volunteer.name]
-    })
-    return names
+        return volunteer.name
+    }))
 }
 
 const userIsTyping = async (id) => {
@@ -217,22 +216,22 @@ const unRegisterVolunteer = async (id, name) => {
 }
 
 const getCommandFromMsg = (msg) => {
-    if (msg == '/end_conversation') {
+    if (msg.startsWith('/end_conversation')) {
         return COMMAND_END_CONVERSATION
     }
-    if (msg == '/take_conversation') {
+    if (msg.startsWith('/take_conversation')) {
         return COMMAND_TAKE_CONVERSATION
     }
-    if (msg == '/get_pending_users') {
+    if (msg.startsWith('/get_pending_users')) {
         return COMMAND_GET_PENDING_USERS
     }
-    if (msg == '/register') {
+    if (msg.startsWith('/register')) {
         return COMMAND_REGISTER
     }
-    if (msg == '/unregister') {
+    if (msg.startsWith('/unregister')) {
         return COMMAND_UNREGISTER
     }
-    if (msg == '/get_registered') {
+    if (msg.startsWith('/get_registered')) {
         return COMMAND_GET_REGISTERED
     }
     return null

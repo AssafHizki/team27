@@ -51,6 +51,7 @@ const newMsg = async (id, name, msg) => {
     }
     const volunteer = await volunteerDataHandler.getVolunteerById(id)
     if (!volunteer) {
+        await volunteerDataHandler.sendMessageToVolunteer(id, `You are not registered!`)
         logWarn(`Volunteer not exist: ${name}(${id}): ${msg}`);
         return emptySuccessMassage
     }
@@ -104,7 +105,7 @@ const newMsg = async (id, name, msg) => {
         await volunteerDataHandler.unRegisterVolunteer(volunteer.id, volunteer.name)
     } else if (isGetRegistered) {
         const names = await volunteerDataHandler.getRegisteredVolunteersByNames()
-        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Registered: ${names}`)
+        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Registered: ${names.join(',')}`)
     } else {
         logError(`Invalid volunteer flow: ${name}(${id}). Command: ${command}. Assinged: ${isAssignedToUser}`);
     }

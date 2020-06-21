@@ -1,7 +1,7 @@
 const redis = require('../clients/redisClient');
 const logError = require('../clients/loggerClient').logError;
 
-const userDbVersion = '25'
+const userDbVersion = '27'
 const STATUS_CREATED = 'CREATED'
 const STATUS_IN_CONVERSATION = 'INCONVERSATION'
 const STATUS_ENDED = 'ENDED'
