@@ -42,17 +42,27 @@ const emptySuccessMassage = {
 
 const newMsg = async (id, name, msg) => {
     logDebug(`Volunteer: ${name}(${id}): ${msg}`);
-    const volunteer = await volunteerDataHandler.getOrCreateVolunteerById(id)
-    if (!volunteer) {
+    const command = volunteerDataHandler.getCommandFromMsg(msg)
+    const isRegisterCommand = volunteerDataHandler.isRegisterCommand(command)
+    const isVolunteerRegistered = await volunteerDataHandler.isVolunteerRegistered(id)
+    if (isRegisterCommand) {
+        if (isVolunteerRegistered) {
+            await volunteerDataHandler.sendMessageToVolunteer(id, `You are already registered!`)
+        } else {
+            await volunteerDataHandler.registerVolunteer(id, name, msg)
+        }
+        return emptySuccessMassage
+    }
+    if (!isVolunteerRegistered) {
+        await volunteerDataHandler.sendMessageToVolunteer(id, `You are not registered!`)
         logWarn(`Volunteer not exist: ${name}(${id}): ${msg}`);
         return emptySuccessMassage
     }
-    const command = volunteerDataHandler.getCommandFromMsg(msg)
+    const volunteer = await volunteerDataHandler.getVolunteerById(id)
     const isTakeCommand = volunteerDataHandler.isTakeCommand(command)
     const isEndCommand = volunteerDataHandler.isEndCommand(command)
-    const isOnShiftCommand = volunteerDataHandler.isOnShiftCommand(command)
-    const isOffShiftCommand = volunteerDataHandler.isOffShiftCommand(command)
-    const isGetShiftCommand = volunteerDataHandler.isGetShiftCommand(command)
+    const isUnRegisterCommand = volunteerDataHandler.isUnRegisterCommand(command)
+    const isGetRegistered = volunteerDataHandler.isGetRegistered(command)
     const isGetPendingUsersCommand = volunteerDataHandler.isGetPendingUsersCommand(command)
     const isAssignedToUser = volunteerDataHandler.isAssignedToUser(volunteer)
     if (!command && isAssignedToUser) {
@@ -60,10 +70,6 @@ const newMsg = async (id, name, msg) => {
     } else if (isTakeCommand) {
         if (isAssignedToUser) {
             await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `You are already in a conversation`)
-            return emptySuccessMassage
-        }
-        if (!(await volunteerDataHandler.isOnShift(volunteer.id))) {
-            await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Can not take conversations off shift`)
             return emptySuccessMassage
         }
         const pending = await volunteerDataHandler.getPendingUsers()
@@ -99,17 +105,11 @@ const newMsg = async (id, name, msg) => {
         const pending = await volunteerDataHandler.getPendingUsers()
         const friendlyPending = pending.map(id => userDataHandler.getUserFriendlyId(id)).join(',')
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Pending users: ${friendlyPending}`)
-    } else if (isOnShiftCommand) {
-        await volunteerDataHandler.goOnShift(volunteer.id)
-        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `You are now on shift`)
-        logInfo(`Volunteer is on shift: ${volunteer.name}(${volunteer.id})`);
-    } else if (isOffShiftCommand) {
-        await volunteerDataHandler.goOffShift(volunteer.id)
-        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `You are now off shift`)
-        logInfo(`Volunteer is off shift: ${volunteer.name}(${volunteer.id})`);
-    } else if (isGetShiftCommand) {
-        const onShiftVolunteers = (await volunteerDataHandler.getOnShiftVolunteersByNames()).join(',')
-        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `On shift: ${onShiftVolunteers}`)
+    } else if (isUnRegisterCommand) {
+        await volunteerDataHandler.unRegisterVolunteer(volunteer.id, volunteer.name)
+    } else if (isGetRegistered) {
+        const names = await volunteerDataHandler.getRegisteredVolunteersByNames()
+        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Registered: ${names.join(',')}`)
     } else {
         logError(`Invalid volunteer flow: ${name}(${id}). Command: ${command}. Assinged: ${isAssignedToUser}`);
     }
