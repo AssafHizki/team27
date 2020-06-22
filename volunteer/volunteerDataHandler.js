@@ -168,6 +168,17 @@ const removeFromPendingUsers = async (userId) => {
     await redis.set(key, pendingUsers)
 }
 
+const isVolunteerRegistered = async (id) => {
+    const volunteer = await getVolunteerById(id)
+    if (volunteer) {
+        const all = await getRegisteredVolunteers()
+        if (all.includes(volunteer.id) || all.includes(volunteer.id.toString())) {
+            return true
+        }
+    }
+    return false
+}
+
 const getRegisteredVolunteers = async () => {
     const key = getRegisteredVolunteersKey()
     return await redis.get(key) || []
@@ -288,4 +299,5 @@ module.exports = {
     unRegisterVolunteer,
     getRegisteredVolunteers,
     getRegisteredVolunteersByNames,
+    isVolunteerRegistered,
 }

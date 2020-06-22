@@ -5,7 +5,6 @@ const logWarn = require('../clients/loggerClient').logWarn;
 const logDebug = require('../clients/loggerClient').logDebug;
 const volunteerDataHandler = require('./volunteerDataHandler');
 const userDataHandler = require('../user/userDataHandler');
-const { volunteerMessage } = require('..');
 const env = require('../environment/environment').env();
 
 const CHAT_URL = `${env.CLIENT_BASE_URL}/api/chat`
@@ -45,16 +44,21 @@ const newMsg = async (id, name, msg) => {
     logDebug(`Volunteer: ${name}(${id}): ${msg}`);
     const command = volunteerDataHandler.getCommandFromMsg(msg)
     const isRegisterCommand = volunteerDataHandler.isRegisterCommand(command)
+    const isVolunteerRegistered = await volunteerDataHandler.isVolunteerRegistered(id)
     if (isRegisterCommand) {
-        await volunteerDataHandler.registerVolunteer(id, name, msg)
+        if (isVolunteerRegistered) {
+            await volunteerDataHandler.sendMessageToVolunteer(id, `You are already registered!`)
+        } else {
+            await volunteerDataHandler.registerVolunteer(id, name, msg)
+        }
         return emptySuccessMassage
     }
-    const volunteer = await volunteerDataHandler.getVolunteerById(id)
-    if (!volunteer) {
+    if (!isVolunteerRegistered) {
         await volunteerDataHandler.sendMessageToVolunteer(id, `You are not registered!`)
         logWarn(`Volunteer not exist: ${name}(${id}): ${msg}`);
         return emptySuccessMassage
     }
+    const volunteer = await volunteerDataHandler.getVolunteerById(id)
     const isTakeCommand = volunteerDataHandler.isTakeCommand(command)
     const isEndCommand = volunteerDataHandler.isEndCommand(command)
     const isUnRegisterCommand = volunteerDataHandler.isUnRegisterCommand(command)
