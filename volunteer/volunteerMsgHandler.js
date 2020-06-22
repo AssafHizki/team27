@@ -23,7 +23,7 @@ const sendTypingToUser = async (userId, VolName) => {
 
 const sendMsgToUser = async (userId, VolName, text, eventType='text') => {
     try {
-        logInfo(`Sending ${eventType} message to user ${userId}`)
+        logDebug(`Sending ${eventType} message to user ${userId}`)
         return await axios.post(CHAT_URL, {
             userId: userId,
             VolName: VolName,

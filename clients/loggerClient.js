@@ -14,7 +14,7 @@ const log = (msg, level) => {
             console.log(msg)
         } else {
             console.log(msg)
-            bot.sendMessage(env.LOG_DEST, `${level}\n${stringMessage}`);
+            // bot.sendMessage(env.LOG_DEST, `${level}\n${stringMessage}`);
         }
     } catch (error) {
         console.log(error)

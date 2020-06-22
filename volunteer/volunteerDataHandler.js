@@ -222,6 +222,10 @@ const unRegisterVolunteer = async (id, name) => {
         registered.splice(index, 1);
         await redis.set(key, registered)
     }
+    const volunteer = await getVolunteerById(id)
+    if (isAssignedToUser(volunteer)) {
+        unassignUserToVolunteer(id)
+    }
     await sendMessageToVolunteer(id, `You are now unregistered`)
     logInfo(`Volunteer is on unregistered: ${name}(${id})`);
 }
