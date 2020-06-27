@@ -3,6 +3,7 @@ const logInfo = require('../clients/loggerClient').logInfo;
 const logWarn = require('../clients/loggerClient').logWarn;
 const logDebug = require('../clients/loggerClient').logDebug;const userDataHandler = require('./userDataHandler');
 const volunteerDataHandler = require('../volunteer/volunteerDataHandler');
+const historyHandler = require('../history/historyHandler');
 
 const getSafeData = (req) => {
     if (!req || !req.body || !req.body.userId) {
@@ -44,6 +45,7 @@ const newMsg = async (req) => {
                 }
             } else {
                 await volunteerDataHandler.sendMessageToVolunteer(assingedVolunteerId, safeData.text, isSystem=false);
+                await historyHandler.addToUser(safeData.id, safeData.text)
             }
         } else if (safeData.type == 'start') {
             if (existingUser) {
@@ -66,6 +68,9 @@ const newMsg = async (req) => {
                     await volunteerDataHandler.sendMessageToVolunteer(assingedVolunteerId, 'This person has closed the conversation window. Thank you.');
                     await volunteerDataHandler.unassignVolunteer(assingedVolunteerId)
                     await userDataHandler.setConversationEnded(safeData.id);
+                    // Set user ended
+                    const conversationHistory = await historyHandler.getConversationHistory(safeData.id)
+                    // email history
                 } else {
                     await volunteerDataHandler.removeFromPendingUsers(safeData.id)
                     logInfo(`No assinged volunteer to user (end conversation) ${existingUser.id}`);

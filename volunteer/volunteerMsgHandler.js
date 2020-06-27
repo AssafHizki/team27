@@ -67,6 +67,7 @@ const newMsg = async (id, name, msg) => {
     const isAssignedToUser = volunteerDataHandler.isAssignedToUser(volunteer)
     if (!command && isAssignedToUser) {
         await sendMsgToUser(volunteer.asssginedUser, volunteer.name, msg);
+        // add to history Volunteer(userId, VolName)
     } else if (isTakeCommand) {
         if (isAssignedToUser) {
             await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `You are already in a conversation`)
@@ -101,6 +102,7 @@ const newMsg = async (id, name, msg) => {
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has ended`)
         await userDataHandler.unassignVolunteerToUser(userId, volunteer.id)
         await sendEndChatToUser(userId, volunteer.name);
+        // email history
     } else if (isGetPendingUsersCommand) {
         const pending = await volunteerDataHandler.getPendingUsers()
         const friendlyPending = pending.map(id => userDataHandler.getUserFriendlyId(id)).join(',')
