@@ -6,6 +6,9 @@ const logDebug = require('../clients/loggerClient').logDebug;
 const volunteerDataHandler = require('./volunteerDataHandler');
 const userDataHandler = require('../user/userDataHandler');
 const env = require('../environment/environment').env();
+const historyHandler = require('../history/historyHandler');
+const emailClient = require('../clients/emailClient');
+
 
 const CHAT_URL = `${env.CLIENT_BASE_URL}/api/chat`
 
@@ -67,7 +70,7 @@ const newMsg = async (id, name, msg) => {
     const isAssignedToUser = volunteerDataHandler.isAssignedToUser(volunteer)
     if (!command && isAssignedToUser) {
         await sendMsgToUser(volunteer.asssginedUser, volunteer.name, msg);
-        // add to history Volunteer(userId, VolName)
+        await historyHandler.addToVolunteer(volunteer, msg)
     } else if (isTakeCommand) {
         if (isAssignedToUser) {
             await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `You are already in a conversation`)
@@ -102,7 +105,9 @@ const newMsg = async (id, name, msg) => {
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has ended`)
         await userDataHandler.unassignVolunteerToUser(userId, volunteer.id)
         await sendEndChatToUser(userId, volunteer.name);
-        // email history
+        await historyHandler.setVolunteerEnded(volunteer)
+        const conversationHistory = await historyHandler.getEnhancedConversationHistory(userId)
+        await emailClient.send(userId, conversationHistory)
     } else if (isGetPendingUsersCommand) {
         const pending = await volunteerDataHandler.getPendingUsers()
         const friendlyPending = pending.map(id => userDataHandler.getUserFriendlyId(id)).join(',')

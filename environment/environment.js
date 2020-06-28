@@ -11,7 +11,7 @@ module.exports = {
             env.ENV_NAME = 'Production';
         } else {
             env = require('./environment.staging').env;
-            env.ENV_NAME = 'Local';
+            env.ENV_NAME = 'Staging';
         }
         env.VERSION = VERSION
         return env

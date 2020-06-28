@@ -1,28 +1,33 @@
 const nodemailer = require('nodemailer');
+const env = require('../environment/environment').env();
 
-const send = () => {
-    const transporter = nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-          user: 'DiscreetlyTest@gmail.com',
-          pass: 'Meir1234'
-        }
-    });
-      
-    const mailOptions = {
-        from: 'DiscreetlyTest@gmail.com',
-        to: 'meirtz4@gmail.com',
-        subject: 'Sending Email using Node.js',
-        text: 'That was easy!'
-    };
+const send = (id, data) => {
+    return new Promise((resolve, reject)=>{
+        const transporter = nodemailer.createTransport({
+            service: 'gmail',
+            auth: {
+            user: env.GMAIL_USER,
+            pass: env.GMAIL_PASS,
+            }
+        });
+        
+        const mailOptions = {
+            from:  env.GMAIL_USER,
+            to: env.EMAIL_RECIPIENTS,
+            subject: `[${env.ENV_NAME}] Conversation history for user ${id}`,
+            text: JSON.stringify(data)
+        };
 
-    transporter.sendMail(mailOptions, function(error, info ){
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email sent: ' + info.response);
-        }
-    });
+        return transporter.sendMail(mailOptions, function(error, info ){
+            if (error) {
+                console.log(error);
+                resolve(false);
+            } else {
+                console.log('Email sent: ' + info.response);
+                resolve(true);
+            }
+        });
+    })
 }
 
 module.exports = {
