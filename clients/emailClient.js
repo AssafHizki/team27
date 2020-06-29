@@ -15,7 +15,7 @@ const send = (id, data) => {
             from:  env.GMAIL_USER,
             to: env.EMAIL_RECIPIENTS,
             subject: `[${env.ENV_NAME}] Conversation history for user ${id}`,
-            text: JSON.stringify(data)
+            text: data
         };
 
         return transporter.sendMail(mailOptions, function(error, info ){

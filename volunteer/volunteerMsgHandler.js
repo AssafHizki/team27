@@ -91,12 +91,13 @@ const newMsg = async (id, name, msg) => {
         await volunteerDataHandler.assignUserToVolunteer(volunteer.id, userId)
         await userDataHandler.assignVolunteerToUser(userId, volunteer.id)
         await volunteerDataHandler.removeFromPendingUsers(userId)
-        await volunteerDataHandler.sendUserPendingMessagesToVolunteer(volunteer.id, user.pendingMessages)
+        await volunteerDataHandler.sendUserPendingMessagesToVolunteer(volunteer.id, user.pendingMessages, isSystem=false)
         await userDataHandler.clearPendingMessages(userId)
         const userFriendlyId = userDataHandler.getUserFriendlyId(userId)
         await volunteerDataHandler.notifyAllAvailable(`Visitor ${userFriendlyId} is being assisted by another volunteer. Thank you.`);
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has started`)
         await sendStartChatToUser(userId, volunteer.name);
+        await historyHandler.setVolunteerStarted(volunteer)
     } else if (isEndCommand && isAssignedToUser) {
         logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
         const userId = volunteer.asssginedUser

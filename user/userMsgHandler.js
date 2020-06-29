@@ -57,6 +57,7 @@ const newMsg = async (req) => {
                 await userDataHandler.createUser(safeData);
                 await volunteerDataHandler.addToPendingUsers(safeData);
                 await volunteerDataHandler.notifyAllNewUser(safeData.id);
+                await historyHandler.setUserStarted(safeData.id)
             }
         } else if (safeData.type == 'end') {
             if (!existingUser) {
