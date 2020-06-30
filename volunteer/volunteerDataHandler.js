@@ -88,6 +88,7 @@ const clearPendingUsers = async () => {
 }
 
 const clearVolunteers = async () => {
+    const volunteers = await getRegisteredVolunteers()
     volunteers.forEach(async volunteer => {
         const volunteerKey = getVolunteerKey(volunteer.id)
         let volunteerObject = await getVolunteerById(volunteer.id)
