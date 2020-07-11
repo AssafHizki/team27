@@ -6,6 +6,9 @@ const logDebug = require('../clients/loggerClient').logDebug;
 const volunteerDataHandler = require('./volunteerDataHandler');
 const userDataHandler = require('../user/userDataHandler');
 const env = require('../environment/environment').env();
+const historyHandler = require('../history/historyHandler');
+const emailClient = require('../clients/emailClient');
+
 
 const CHAT_URL = `${env.CLIENT_BASE_URL}/api/chat`
 
@@ -23,7 +26,7 @@ const sendTypingToUser = async (userId, VolName) => {
 
 const sendMsgToUser = async (userId, VolName, text, eventType='text') => {
     try {
-        logInfo(`Sending ${eventType} message to user ${userId}`)
+        logDebug(`Sending ${eventType} message to user ${userId}`)
         return await axios.post(CHAT_URL, {
             userId: userId,
             VolName: VolName,
@@ -67,6 +70,7 @@ const newMsg = async (id, name, msg) => {
     const isAssignedToUser = volunteerDataHandler.isAssignedToUser(volunteer)
     if (!command && isAssignedToUser) {
         await sendMsgToUser(volunteer.asssginedUser, volunteer.name, msg);
+        await historyHandler.addToVolunteer(volunteer, msg)
     } else if (isTakeCommand) {
         if (isAssignedToUser) {
             await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `You are already in a conversation`)
@@ -87,12 +91,13 @@ const newMsg = async (id, name, msg) => {
         await volunteerDataHandler.assignUserToVolunteer(volunteer.id, userId)
         await userDataHandler.assignVolunteerToUser(userId, volunteer.id)
         await volunteerDataHandler.removeFromPendingUsers(userId)
-        await volunteerDataHandler.sendUserPendingMessagesToVolunteer(volunteer.id, user.pendingMessages)
+        await volunteerDataHandler.sendUserPendingMessagesToVolunteer(volunteer.id, user.pendingMessages, isSystem=false)
         await userDataHandler.clearPendingMessages(userId)
         const userFriendlyId = userDataHandler.getUserFriendlyId(userId)
         await volunteerDataHandler.notifyAllAvailable(`Visitor ${userFriendlyId} is being assisted by another volunteer. Thank you.`);
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has started`)
         await sendStartChatToUser(userId, volunteer.name);
+        await historyHandler.setVolunteerStarted(volunteer)
     } else if (isEndCommand && isAssignedToUser) {
         logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
         const userId = volunteer.asssginedUser
@@ -101,6 +106,9 @@ const newMsg = async (id, name, msg) => {
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has ended`)
         await userDataHandler.unassignVolunteerToUser(userId, volunteer.id)
         await sendEndChatToUser(userId, volunteer.name);
+        await historyHandler.setVolunteerEnded(volunteer)
+        const conversationHistory = await historyHandler.getEnhancedConversationHistory(userId)
+        await emailClient.send(userId, conversationHistory)
     } else if (isGetPendingUsersCommand) {
         const pending = await volunteerDataHandler.getPendingUsers()
         const friendlyPending = pending.map(id => userDataHandler.getUserFriendlyId(id)).join(',')

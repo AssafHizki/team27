@@ -88,6 +88,7 @@ const clearPendingUsers = async () => {
 }
 
 const clearVolunteers = async () => {
+    const volunteers = await getRegisteredVolunteers()
     volunteers.forEach(async volunteer => {
         const volunteerKey = getVolunteerKey(volunteer.id)
         let volunteerObject = await getVolunteerById(volunteer.id)
@@ -221,6 +222,10 @@ const unRegisterVolunteer = async (id, name) => {
     if (index > -1) {
         registered.splice(index, 1);
         await redis.set(key, registered)
+    }
+    const volunteer = await getVolunteerById(id)
+    if (isAssignedToUser(volunteer)) {
+        unassignUserToVolunteer(id)
     }
     await sendMessageToVolunteer(id, `You are now unregistered`)
     logInfo(`Volunteer is on unregistered: ${name}(${id})`);
