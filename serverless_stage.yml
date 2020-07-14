@@ -6,7 +6,7 @@ provider:
   runtime: nodejs10
   region: us-central1
   project: discreetly
-  credentials: C:\Users\meirt\Desktop\discreetly-key.json
+  credentials: E:\Users\Meir\Desktop\discreetly-key.json
   environment:
     IS_PROD: 'false'
 
