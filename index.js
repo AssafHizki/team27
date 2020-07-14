@@ -1,6 +1,7 @@
 'use strict';
 const logInfo = require('./clients/loggerClient').logInfo;
 const logError = require('./clients/loggerClient').logError;
+const logWarn = require('./clients/loggerClient').logWarn;
 const logDebug = require('./clients/loggerClient').logDebug;
 const userMsgHandler = require('./user/userMsgHandler');
 const volunteerMsgHandler = require('./volunteer/volunteerMsgHandler');
@@ -36,10 +37,10 @@ exports.volunteerMessage = async (request, response) => {
 };
 
 exports.clearCommand = async (request, response) => {
-  logInfo("CLEAR COMMAND!")
+  logWarn("CLEAR COMMAND!")
   await volunteerDataHandler.clearPendingUsers()
   await volunteerDataHandler.clearVolunteers()
-  logInfo("CLEAR DONE!")
+  logWarn("CLEAR DONE!")
   response.status(200).send('OK');
 };
 

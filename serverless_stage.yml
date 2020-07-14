@@ -21,16 +21,19 @@ package:
 
 functions:
   user:
+    name: userMessage
     handler: userMessage
     events:
       - http: user
 
   volunteer:
+    name: volunteerMessage
     handler: volunteerMessage
     events:
       - http: volunteer
 
   clear:
+    name: clearCommand
     handler: clearCommand
     events:
       - http: clear
