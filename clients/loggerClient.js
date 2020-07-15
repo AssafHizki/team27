@@ -1,11 +1,11 @@
 const env = require('../environment/environment').env();
-const logger = require('logzio-nodejs').createLogger({
+const logzioLogger = require('logzio-nodejs').createLogger({
     token: env.LOGZ_IO_TOKEN,
     host: 'listener.logz.io',
     type: 'backend' 
 });
 
-const log = (msg, level) => {
+const _log = (msg, level) => {
     try {
         // const stringMessage = JSON.stringify(msg)
         var obj = { 
@@ -15,13 +15,13 @@ const log = (msg, level) => {
         };
         if (level=='ERROR') {
             console.error(msg)
-            logger.log(obj);
+            logzioLogger.log(obj);
         } else if (level=='WARNING') {
             console.warn(msg)
-            logger.log(obj);
+            logzioLogger.log(obj);
         } else if (level=='INFO') {
             console.log(msg)
-            logger.log(obj);
+            logzioLogger.log(obj);
         } else if (level=='DEBUG') {
             console.log(msg)
         } else {
@@ -32,7 +32,7 @@ const log = (msg, level) => {
                 env: env.ENV_NAME,
             };
             console.error(message)
-            logger.log(obj);
+            logzioLogger.log(obj);
         }
     } catch (error) {
         console.log(error)
@@ -40,19 +40,19 @@ const log = (msg, level) => {
 }
 
 const logDebug = (msg) => {
-    log(msg, 'DEBUG')
+    _log(msg, 'DEBUG')
 }
 
 const logInfo = (msg) => {
-    log(msg, 'INFO')
+    _log(msg, 'INFO')
 }
 
 const logWarn = (msg) => {
-    log(msg, 'WARNING')
+    _log(msg, 'WARNING')
 }
 
 const logError = (msg) => {
-    log(msg, 'ERROR')
+    _log(msg, 'ERROR')
 }
 
 module.exports = {
