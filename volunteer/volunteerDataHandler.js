@@ -48,7 +48,7 @@ const notifyAllNewUser = async (id) => {
         const available = volunteerObject.status == STATUS_AVAILABLE
         if (available) {
             const userFriendlyId = userDataHandler.getUserFriendlyId(id)
-            const msg = `Visitor ${userFriendlyId} is waiting for assistance.\nSend any message to start the conversation.`
+            const msg = `Visitor ${userFriendlyId} is waiting for assistance.\nUse /take_conversation to start the conversation.`
             await sendMessageToVolunteer(volunteerObject.id, msg);
         }
     });
