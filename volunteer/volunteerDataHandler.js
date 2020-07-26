@@ -3,16 +3,17 @@ const logWarn = require('../clients/loggerClient').logWarn;
 const redis = require('../clients/redisClient');
 const env = require('../environment/environment').env();
 const userDataHandler = require('../user/userDataHandler');
-let bot = null
+const bot = require('../clients/telegramClient').getBot();
 
-if (env.PLATFORM == 'SLACK') {
-    bot = require('../clients/slackClient').getBot();
-} else if (env.PLATFORM == 'TELEGRAM') {
-    bot = require('../clients/telegramClient').getBot();
-} else {
-    throw Error('PLATFORM NOT CONFIGURED'); 
-    // bot = require('../clients/slackClient').getBot();
-}
+// let bot = null
+// if (env.PLATFORM == 'SLACK') {
+//     bot = require('../clients/slackClient').getBot();
+// } else if (env.PLATFORM == 'TELEGRAM') {
+//     bot = require('../clients/telegramClient').getBot();
+// } else {
+//     throw Error('PLATFORM NOT CONFIGURED'); 
+//     // bot = require('../clients/slackClient').getBot();
+// }
 
 
 const volunteerDbVersion = '27'
@@ -48,7 +49,7 @@ const notifyAllNewUser = async (id) => {
         const available = volunteerObject.status == STATUS_AVAILABLE
         if (available) {
             const userFriendlyId = userDataHandler.getUserFriendlyId(id)
-            const msg = `Visitor ${userFriendlyId} is waiting for assistance.\nUse /take_conversation to start the conversation.`
+            const msg = `Visitor ${userFriendlyId} is waiting for assistance.\nUse take conversation command to start the conversation.`
             await sendMessageToVolunteer(volunteerObject.id, msg);
         }
     });

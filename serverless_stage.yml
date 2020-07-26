@@ -1,12 +1,12 @@
-service: discreetly
+service: team27
 
 provider:
   name: google
   stage: stage
   runtime: nodejs10
   region: us-central1
-  project: discreetly
-  credentials: E:\Users\Meir\Desktop\discreetly-key.json
+  project: stageteam27
+  credentials: E:\Users\Meir\Desktop\stageteam27keyfile.json
   environment:
     IS_PROD: 'false'
     PLATFORM: 'TELEGRAM'

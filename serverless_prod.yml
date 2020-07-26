@@ -1,14 +1,15 @@
-service: team27
+service: discreetly
 
 provider:
   name: google
   stage: prod
   runtime: nodejs10
   region: us-central1
-  project: team27-277512
-  credentials: /users/Meir/Desktop/team27keyfile.json
+  project: discreetly
+  credentials: E:\Users\Meir\Desktop\discreetly-key.json
   environment:
     IS_PROD: 'true'
+    PLATFORM: 'TELEGRAM'
 
 plugins:
   - serverless-google-cloudfunctions
@@ -21,16 +22,19 @@ package:
 
 functions:
   user:
+    name: userMessage
     handler: userMessage
     events:
       - http: user
 
   volunteer:
+    name: volunteerMessage
     handler: volunteerMessage
     events:
       - http: volunteer
 
   clear:
+    name: clearCommand
     handler: clearCommand
     events:
       - http: clear
