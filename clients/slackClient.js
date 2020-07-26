@@ -14,7 +14,7 @@ const getBot = () => {
                     url: 'https://slack.com/api/chat.postMessage',
                     headers: {
                         'Content-type': 'application/json',
-                        'Authorization': 'Bearer xoxb-1168818394209-1262759122370-yFraUEo4JdeOy5F67E7JuOSN'
+                        'Authorization': 'Bearer xoxb'
                     },
                     data: {
                         'channel': 'U014SB4EWMS',
