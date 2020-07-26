@@ -13,7 +13,18 @@ app.post('/userMessage', async (req, res) => {
   await res.send(ret.body, ret.status)
 })
 
-app.post('/volunteerMessage', async (req, res) => {
+app.post('/slackVolunteerMessage', async (req, res) => {
+  if (req && req.body && req.body.event && !req.body.event.bot_id) {
+    const volunteerId = req.body.event.user;
+    const volunteerName = req.body.event.user;
+    const ret = await volunteerMsgHandler.newMsg(volunteerId, volunteerName, req.body.event.text)
+    res.status(ret.status).send(ret.body);
+  } else {
+    res.status(200).send({status: 'unknown request'});
+  }
+})
+
+app.post('/telegramVolunteerMessage', async (req, res) => {
   if (req && req.body && req.body.message && req.body.message.from.id) {
     const volunteerId = req.body.message.from.id;
     const volunteerName = req.body.message.from.first_name;

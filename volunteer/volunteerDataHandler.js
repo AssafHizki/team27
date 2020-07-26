@@ -1,9 +1,19 @@
 const logError = require('../clients/loggerClient').logError;
 const logWarn = require('../clients/loggerClient').logWarn;
 const redis = require('../clients/redisClient');
-const bot = require('../clients/telegramClient').getBot();
 const env = require('../environment/environment').env();
 const userDataHandler = require('../user/userDataHandler');
+let bot = null
+
+if (env.PLATFORM == 'SLACK') {
+    bot = require('../clients/slackClient').getBot();
+} else if (env.PLATFORM == 'TELEGRAM') {
+    bot = require('../clients/telegramClient').getBot();
+} else {
+    throw Error('PLATFORM NOT CONFIGURED'); 
+    // bot = require('../clients/slackClient').getBot();
+}
+
 
 const volunteerDbVersion = '27'
 
@@ -199,7 +209,7 @@ const userIsTyping = async (id) => {
 }
 
 const registerVolunteer = async (id, name, msg) => {
-    const secret = msg.split('/register ')
+    const secret = msg.split('register ')
     if (secret.length == 2 && secret[1] == env.REGISTRATION_SECRET) {
         volunteer = await createVolunteerById(id, name)
         const key = getRegisteredVolunteersKey()
@@ -232,22 +242,22 @@ const unRegisterVolunteer = async (id, name) => {
 }
 
 const getCommandFromMsg = (msg) => {
-    if (msg.startsWith('/end_conversation')) {
+    if (msg.startsWith('/end_conversation') || msg.startsWith('cmd_end_conversation')) {
         return COMMAND_END_CONVERSATION
     }
-    if (msg.startsWith('/take_conversation')) {
+    if (msg.startsWith('/take_conversation') || msg.startsWith('cmd_take_conversation')) {
         return COMMAND_TAKE_CONVERSATION
     }
-    if (msg.startsWith('/get_pending_users')) {
+    if (msg.startsWith('/get_pending_users') || msg.startsWith('cmd_get_pending_users')) {
         return COMMAND_GET_PENDING_USERS
     }
-    if (msg.startsWith('/register')) {
+    if (msg.startsWith('/register') || msg.startsWith('cmd_register')) {
         return COMMAND_REGISTER
     }
-    if (msg.startsWith('/unregister')) {
+    if (msg.startsWith('/unregister') || msg.startsWith('cmd_unregister')) {
         return COMMAND_UNREGISTER
     }
-    if (msg.startsWith('/get_registered')) {
+    if (msg.startsWith('/get_registered') || msg.startsWith('cmd_get_registered')) {
         return COMMAND_GET_REGISTERED
     }
     return null

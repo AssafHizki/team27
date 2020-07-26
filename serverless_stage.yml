@@ -9,6 +9,7 @@ provider:
   credentials: E:\Users\Meir\Desktop\discreetly-key.json
   environment:
     IS_PROD: 'false'
+    PLATFORM: 'TELEGRAM'
 
 plugins:
   - serverless-google-cloudfunctions
