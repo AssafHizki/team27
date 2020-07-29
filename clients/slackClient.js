@@ -1,6 +1,6 @@
 const env = require('../environment/environment').env();
 const axios = require('axios');
-const TOKEN = env.telBotToken;
+const TOKEN = env.TELEGRAM_BOT_TOKEN;
 
 
 let bot = false;

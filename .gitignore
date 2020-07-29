@@ -50,7 +50,4 @@ node_modules
 /coverage
 # IDE
 env
-environment.local.js
-environment.prod.js
-environment.staging.js
-/environment/environment.local.js
+environment.*.js

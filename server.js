@@ -1,6 +1,7 @@
+process.env['CLIENT'] = 'staging'
+
 const volunteerMsgHandler = require('./volunteer/volunteerMsgHandler');
 const userMsgHandler = require('./user/userMsgHandler');
-const volunteerDataHandler = require('./volunteer/volunteerDataHandler');
 
 const express = require('express')
 const app = express()
@@ -33,12 +34,6 @@ app.post('/telegramVolunteerMessage', async (req, res) => {
   } else {
     res.status(400).send({status: 'unknown request'});
   }
-})
-
-app.post('/clearDb', async (req, res) => {
-  await volunteerDataHandler.clearPendingUsers()
-  await volunteerDataHandler.clearVolunteers()
-  res.status(200).send('OK');
 })
 
 app.listen(port, () => console.log(`Team27 app listening at http://localhost:${port}`))

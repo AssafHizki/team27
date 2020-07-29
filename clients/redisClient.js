@@ -13,7 +13,7 @@ const init_redis = async () => {
     });
 }
 
-const set = async (key, value, expirationInSeconds = 2592000) => { // 30 Days
+const set = async (key, value, expirationInSeconds = 86400) => { // 24 Hours
     const dbKey = `${dbPrefix}:${key}`
     if (!client) {
         await init_redis();

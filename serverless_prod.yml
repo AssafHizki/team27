@@ -8,7 +8,7 @@ provider:
   project: discreetly
   credentials: E:\Users\Meir\Desktop\discreetly-key.json
   environment:
-    IS_PROD: 'true'
+    CLIENT: 'prod'
     PLATFORM: 'TELEGRAM'
 
 plugins:
@@ -32,9 +32,3 @@ functions:
     handler: volunteerMessage
     events:
       - http: volunteer
-
-  clear:
-    name: clearCommand
-    handler: clearCommand
-    events:
-      - http: clear

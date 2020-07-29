@@ -1,19 +1,26 @@
-const IS_PROD = process.env.IS_PROD || false
-const VERSION = '1.0.0'
+const VERSION = '1.1.0'
 
 module.exports = {
     env: (() => {
         let env;
-        const prod = IS_PROD === "true"
-        console.log(`Loading environment IS_PROD=${prod}`)
-        if (prod) {
-            env = require('./environment.prod').env;
-            env.ENV_NAME = 'Production';
-        } else {
-            env = require('./environment.staging').env;
-            env.ENV_NAME = 'Staging';
+        switch(process.env.CLIENT) {
+            case 'prod':
+                env = require('./environment.prod').env;
+                env.ENV_NAME = 'Production';
+                break;
+            case 'maan':
+                env = require('./environment.maan').env;
+                env.ENV_NAME = 'MAAN';
+                break;
+            case 'staging':
+                env = require('./environment.staging').env;
+                env.ENV_NAME = 'Staging';
+                break;
+            default:
+                
         }
         env.VERSION = VERSION
+        console.log(`Loading environment ${env.ENV_NAME} (${env.VERSION})`)
         return env
     })
 };

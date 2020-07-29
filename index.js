@@ -35,12 +35,3 @@ exports.volunteerMessage = async (request, response) => {
     response.status(200).send({});
   }
 };
-
-exports.clearCommand = async (request, response) => {
-  logWarn("CLEAR COMMAND!")
-  await volunteerDataHandler.clearPendingUsers()
-  await volunteerDataHandler.clearVolunteers()
-  logWarn("CLEAR DONE!")
-  response.status(200).send('OK');
-};
-

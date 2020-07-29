@@ -12,6 +12,7 @@ const _log = (msg, level) => {
             message: msg, 
             level: level,
             env: env.ENV_NAME,
+            version: env.VERSION,
         };
         if (level=='ERROR') {
             console.error(msg)

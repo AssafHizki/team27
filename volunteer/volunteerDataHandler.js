@@ -93,22 +93,6 @@ const getPendingUsers = async () => {
     return await redis.get(key) || []
 }
 
-const clearPendingUsers = async () => {
-    const key = getPendingUsersKey()
-    await redis.set(key, [])
-}
-
-const clearVolunteers = async () => {
-    const volunteers = await getRegisteredVolunteers()
-    volunteers.forEach(async volunteer => {
-        const volunteerKey = getVolunteerKey(volunteer.id)
-        let volunteerObject = await getVolunteerById(volunteer.id)
-        volunteerObject.status = STATUS_AVAILABLE
-        volunteerObject.asssginedUser = null
-        await redis.set(volunteerKey, volunteerObject)
-    });
-}
-
 const getVolunteerById = async (id) => {
     const volunteerKey = getVolunteerKey(id)
     return await redis.get(volunteerKey)
@@ -299,8 +283,6 @@ module.exports = {
     getVolunteerById,
     isAssignedToUser,
     sendUserPendingMessagesToVolunteer,
-    clearPendingUsers,
-    clearVolunteers,
     removeFromPendingUsers,
     getCommandFromMsg,
     isEndCommand,
