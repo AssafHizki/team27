@@ -46,11 +46,15 @@ const notifyAllNewUser = async (id) => {
     const volunteers = await getRegisteredVolunteers()
     volunteers.forEach(async volunteer_id => {
         let volunteerObject = await getVolunteerById(volunteer_id)
-        const available = volunteerObject.status == STATUS_AVAILABLE
-        if (available) {
-            const userFriendlyId = userDataHandler.getUserFriendlyId(id)
-            const msg = `Visitor ${userFriendlyId} is waiting for assistance.\nUse take conversation command to start the conversation.`
-            await sendMessageToVolunteer(volunteerObject.id, msg);
+        if (volunteerObject) {
+            const available = volunteerObject.status == STATUS_AVAILABLE
+            if (available) {
+                const userFriendlyId = userDataHandler.getUserFriendlyId(id)
+                const msg = `Visitor ${userFriendlyId} is waiting for assistance.\nUse take conversation command to start the conversation.`
+                await sendMessageToVolunteer(volunteerObject.id, msg);
+            }
+        } else {
+            logWarn(`notifyAllNewUser: volunteer not found ${volunteer_id}`)
         }
     });
 }
@@ -59,8 +63,12 @@ const notifyAllAvailable = async (text) => {
     const volunteers = await getRegisteredVolunteers()
     volunteers.forEach(async volunteer_id => {
         const volunteerObject = await getVolunteerById(volunteer_id)
-        if (volunteerObject.status == STATUS_AVAILABLE) {
-            await sendMessageToVolunteer(volunteerObject.id, text);
+        if (volunteerObject) {
+            if (volunteerObject.status == STATUS_AVAILABLE) {
+                await sendMessageToVolunteer(volunteerObject.id, text);
+            }
+        } else {
+            logWarn(`notifyAllAvailable: volunteer not found ${volunteer_id}`)
         }
     });
 }
