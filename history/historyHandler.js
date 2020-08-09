@@ -15,7 +15,7 @@ const getVolunteerRoom = async (asssginedUserId, volunteerId='') => {
 
 const setRoomVolunteer = async (volunteer, room) => {
     const key = getRoomVolunteerKey(volunteer.asssginedUser)
-    return await redis.set(key, room)
+    return await redis.setWithExpiration(key, room)
 }
 
 const addToVolunteer = async (volunteer, message) => {
@@ -73,7 +73,7 @@ const getUserRoom = async (id) => {
 
 const setRoomUser = async (id, room) => {
     const key = getRoomUserKey(id)
-    return await redis.set(key, room)
+    return await redis.setWithExpiration(key, room)
 }
 
 const addToUser = async (userId, message) => {

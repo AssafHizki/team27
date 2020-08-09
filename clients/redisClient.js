@@ -13,7 +13,15 @@ const init_redis = async () => {
     });
 }
 
-const set = async (key, value, expirationInSeconds = 86400) => { // 24 Hours
+const set = async (key, value) => {
+    const dbKey = `${dbPrefix}:${key}`
+    if (!client) {
+        await init_redis();
+    }
+    await client.set(dbKey, JSON.stringify(value));
+}
+
+const setWithExpiration = async (key, value, expirationInSeconds = 86400) => { // 24 Hours
     const dbKey = `${dbPrefix}:${key}`
     if (!client) {
         await init_redis();
@@ -41,7 +49,8 @@ const close = async () => {
 }
 
 module.exports = {
-    get: get,
-    set: set,
-    close: close,
+    get,
+    set,
+    setWithExpiration,
+    close,
 }
