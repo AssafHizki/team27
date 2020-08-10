@@ -16,8 +16,12 @@ module.exports = {
                 env = require('./environment.staging').env;
                 env.ENV_NAME = 'Staging';
                 break;
+            case 'test':
+                env = require('./environment.mock').env;
+                env.ENV_NAME = 'Test';
+                break;
             default:
-                
+
         }
         env.VERSION = VERSION
         console.log(`Loading environment ${env.ENV_NAME} (${env.VERSION})`)
