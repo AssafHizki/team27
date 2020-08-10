@@ -1,5 +1,6 @@
 const logError = require('../clients/loggerClient').logError;
 const logWarn = require('../clients/loggerClient').logWarn;
+const logInfo = require('../clients/loggerClient').logInfo;
 const redis = require('../clients/redisClient');
 const env = require('../environment/environment').env();
 const userDataHandler = require('../user/userDataHandler');
@@ -193,7 +194,12 @@ const getRegisteredVolunteersByNames = async () => {
     let names = []
     return await Promise.all(ids.map(async id => {
         const volunteer = await getVolunteerById(id)
-        return volunteer.name
+        if (volunteer) {
+            return volunteer.name
+        } else {
+            logWarn(`Registered volunteer (${id}) not found`);
+            return id
+        }
     }))
 }
 
