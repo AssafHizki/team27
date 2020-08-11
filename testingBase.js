@@ -1,20 +1,9 @@
 process.env['CLIENT'] = 'test'
 
-jest.mock('./clients/redisClient', () => ({
-    get: jest.fn((key) => {
-        if (key.includes('registeredvol')) {
-            return []
-        }
+jest.mock('logzio-nodejs', () => ({
+    createLogger: jest.fn(() => {
         return {
-            id: key.split(':')[2],
-            name: 'somename',
-            status: 'AVAILABLE',
-            asssginedUser: null
+            log: jest.fn(() => {})
         }
     })
-}))
-
-jest.mock('logzio-nodejs', () => ({
-    createLogger: jest.fn(() => {}),
-    log: jest.fn(() => {})
 }))

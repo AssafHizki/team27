@@ -6,17 +6,6 @@ const env = require('../environment/environment').env();
 const userDataHandler = require('../user/userDataHandler');
 const bot = require('../clients/telegramClient').getBot();
 
-// let bot = null
-// if (env.PLATFORM == 'SLACK') {
-//     bot = require('../clients/slackClient').getBot();
-// } else if (env.PLATFORM == 'TELEGRAM') {
-//     bot = require('../clients/telegramClient').getBot();
-// } else {
-//     throw Error('PLATFORM NOT CONFIGURED'); 
-//     // bot = require('../clients/slackClient').getBot();
-// }
-
-
 const volunteerDbVersion = '27'
 
 const STATUS_IN_CONVERSATION = 'INCONVERSATION'

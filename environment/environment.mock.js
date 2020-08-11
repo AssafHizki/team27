@@ -7,12 +7,13 @@ module.exports = {
         REDIS_PASSWORD: '',
         DB_PREFIX: '',
         CLIENT_BASE_URL: '',
-        REGISTRATION_SECRET: '',
+        REGISTRATION_SECRET: 'passcode1234',
         GMAIL_USER: '',
         GMAIL_PASS: '',
         EMAIL_RECIPIENTS: [],
         API_KEY: '',
-        LOGZ_IO_TOKEN: ''
+        LOGZ_IO_TOKEN: '',
+        PLATFORM: 'MOCK'
     }
 };
 

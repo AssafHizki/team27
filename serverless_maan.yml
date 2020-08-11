@@ -9,7 +9,6 @@ provider:
   credentials: 'E:\Users\Meir\Desktop\maankey.json'
   environment:
     CLIENT: 'maan'
-    PLATFORM: 'TELEGRAM'
 
 plugins:
   - serverless-google-cloudfunctions

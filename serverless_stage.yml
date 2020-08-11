@@ -9,7 +9,6 @@ provider:
   credentials: E:\Users\Meir\Desktop\stageteam27keyfile.json
   environment:
     CLIENT: 'staging'
-    PLATFORM: 'TELEGRAM'
 
 plugins:
   - serverless-google-cloudfunctions
