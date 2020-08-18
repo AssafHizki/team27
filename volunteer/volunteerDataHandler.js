@@ -224,9 +224,10 @@ const unRegisterVolunteer = async (id, name) => {
     const volunteer = await getVolunteerById(id)
     if (isAssignedToUser(volunteer)) {
         unassignUserToVolunteer(id)
+        logError(`Assigned volunteer ${id} has unregistered`)
     }
     await sendMessageToVolunteer(id, `You are now unregistered`)
-    logInfo(`Volunteer is on unregistered: ${name}(${id})`);
+    logInfo(`Volunteer is now unregistered: ${name}(${id})`);
 }
 
 const getCommandFromMsg = (msg) => {
