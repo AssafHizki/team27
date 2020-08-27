@@ -57,7 +57,7 @@ const newMsg = async (id, name, msg) => {
         return emptySuccessMassage
     }
     if (!isVolunteerRegistered) {
-        await volunteerDataHandler.sendMessageToVolunteer(id, `You are not registered!`)
+        await volunteerDataHandler.sendMessageToVolunteer(id, `You are not registered`)
         logWarn(`Volunteer not exist: ${name}(${id}): ${msg}`);
         return emptySuccessMassage
     }
@@ -72,6 +72,7 @@ const newMsg = async (id, name, msg) => {
         await sendMsgToUser(volunteer.asssginedUser, volunteer.name, msg);
         await historyHandler.addToVolunteer(volunteer, msg)
     } else if (isTakeCommand) {
+        logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
         if (isAssignedToUser) {
             await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `You are already in a conversation`)
             return emptySuccessMassage
@@ -93,8 +94,8 @@ const newMsg = async (id, name, msg) => {
         await volunteerDataHandler.removeFromPendingUsers(userId)
         await volunteerDataHandler.sendUserPendingMessagesToVolunteer(volunteer.id, user.pendingMessages, isSystem=false)
         await userDataHandler.clearPendingMessages(userId)
+        await volunteerDataHandler.notifyAllUserTaken(userId);
         const userFriendlyId = userDataHandler.getUserFriendlyId(userId)
-        await volunteerDataHandler.notifyAllAvailable(`Visitor ${userFriendlyId} is being assisted by another volunteer. Thank you.`);
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has started`)
         await sendStartChatToUser(userId, volunteer.name);
         await historyHandler.setVolunteerStarted(volunteer)
@@ -110,12 +111,15 @@ const newMsg = async (id, name, msg) => {
         const conversationHistory = await historyHandler.getEnhancedConversationHistory(userId)
         await emailClient.send(userId, conversationHistory)
     } else if (isGetPendingUsersCommand) {
+        logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
         const pending = await volunteerDataHandler.getPendingUsers()
         const friendlyPending = pending.map(id => userDataHandler.getUserFriendlyId(id)).join(',')
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Pending users: ${friendlyPending}`)
     } else if (isUnRegisterCommand) {
+        logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
         await volunteerDataHandler.unRegisterVolunteer(volunteer.id, volunteer.name)
     } else if (isGetRegistered) {
+        logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
         const names = await volunteerDataHandler.getRegisteredVolunteersByNames()
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Registered: ${names.join(',')}`)
     } else {

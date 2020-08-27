@@ -75,6 +75,7 @@ const newMsg = async (req) => {
                     await emailClient.send(safeData.id, conversationHistory)
                 } else {
                     await volunteerDataHandler.removeFromPendingUsers(safeData.id)
+                    await volunteerDataHandler.notifyAllUserClosed(safeData.id);
                     logInfo(`No assinged volunteer to user (end conversation) ${existingUser.id}`);
                     return {body: {status: `unknown`}, status: 400}
                 }

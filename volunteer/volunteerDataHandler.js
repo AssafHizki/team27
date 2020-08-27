@@ -32,21 +32,22 @@ const getVolunteerKey = (id) => `volunteer:${volunteerDbVersion}:${id}`.toUpperC
 const getPendingUsersKey = () => `pendingusers:${volunteerDbVersion}`
 const getRegisteredVolunteersKey = () => `registeredvol:${volunteerDbVersion}`
 
+const notifyAllUserClosed = async (id) => {
+    const userFriendlyId = userDataHandler.getUserFriendlyId(id)
+    const msg = `Visitor ${userFriendlyId} closed the conversation window. Thank you.`
+    await notifyAllAvailable(msg)
+}
+
+const notifyAllUserTaken = async (id) => {
+    const userFriendlyId = userDataHandler.getUserFriendlyId(id)
+    const msg = `Visitor ${userFriendlyId} is being assisted by another volunteer. Thank you.`
+    await notifyAllAvailable(msg)
+}
+
 const notifyAllNewUser = async (id) => {
-    const volunteers = await getRegisteredVolunteers()
-    volunteers.forEach(async volunteer_id => {
-        let volunteerObject = await getVolunteerById(volunteer_id)
-        if (volunteerObject) {
-            const available = volunteerObject.status == STATUS_AVAILABLE
-            if (available) {
-                const userFriendlyId = userDataHandler.getUserFriendlyId(id)
-                const msg = `Visitor ${userFriendlyId} is waiting for assistance.\nUse take conversation command to start the conversation.`
-                await sendMessageToVolunteer(volunteerObject.id, msg);
-            }
-        } else {
-            logWarn(`notifyAllNewUser: volunteer not found ${volunteer_id}`)
-        }
-    });
+    const userFriendlyId = userDataHandler.getUserFriendlyId(id)
+    const msg = `Visitor ${userFriendlyId} is waiting for assistance.\nUse take conversation command to start the conversation.`
+    await notifyAllAvailable(msg)
 }
 
 const notifyAllAvailable = async (text) => {
@@ -278,11 +279,12 @@ const isGetRegistered = (command) => {
 
 module.exports = {
     notifyAllNewUser,
+    notifyAllUserClosed,
+    notifyAllUserTaken,
     sendMessageToVolunteer,
     addToPendingUsers,
     getPendingUsers,
     assignUserToVolunteer,
-    notifyAllAvailable,
     unassignVolunteer,
     getVolunteerById,
     isAssignedToUser,
