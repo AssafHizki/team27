@@ -1,0 +1,53 @@
+{
+    "en_US":{
+        "notifyAllNewUser":"Visitor {0} is waiting for assistance.\nUse take conversation command to start the conversation.",
+        "notifyAllUserClosed": "Visitor {0} closed the conversation window. Thank you.",
+        "notifyAllUserTaken": "Visitor {0} is being assisted by another volunteer. Thank you.",
+        "systemHeader": "*== System: ==*",
+        "registerVolunteerSuccess": "You are now registered",
+        "registerVolunteerFail": "Failed to register",
+        "unRegisterVolunteer": "You are now unregistered",
+        "alreadyRegistered": "You are already registered!",
+        "notRegistered": "You are not registered",
+        "alreadyInConversation": "You are already in a conversation",
+        "conversationStarted": "Conversation with {0} has started",
+        "conversationEnded": "Conversation with {0} has ended",
+        "pendingUsers": "Pending users: {0}",
+        "registeredUsers": "Registered: {0}",
+        "userEndConversarion": "This person has closed the conversation window. Thank you."
+    },
+    "he_IL": {
+        "notifyAllNewUser":"משתמש {0} ממתין לתמיכה.\nהשתמש בפקודה המתאימה כדי להתחיל את השיחה",
+        "notifyAllUserClosed": "",
+        "notifyAllUserTaken": "",
+        "systemHeader": "*== הודעת מערכת: ==*",
+        "registerVolunteerSuccess": "",
+        "registerVolunteerFail": "",
+        "unRegisterVolunteer": "",
+        "alreadyRegistered": "",
+        "notRegistered": "",
+        "alreadyInConversation": "",
+        "conversationStarted": "שיחה {0} התחילה",
+        "conversationEnded": "",
+        "pendingUsers": "",
+        "registeredUsers": "",
+        "userEndConversarion": ""
+    },
+    "ar_IL": {
+        "notifyAllNewUser":"",
+        "notifyAllUserClosed": "",
+        "notifyAllUserTaken": "",
+        "systemHeader": "",
+        "registerVolunteerSuccess": "",
+        "registerVolunteerFail": "",
+        "unRegisterVolunteer": "",
+        "alreadyRegistered": "",
+        "notRegistered": "",
+        "alreadyInConversation": "",
+        "conversationStarted": "",
+        "conversationEnded": "",
+        "pendingUsers": "",
+        "registeredUsers": "",
+        "userEndConversarion": ""
+    }
+}

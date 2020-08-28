@@ -5,6 +5,7 @@ const redis = require('../clients/redisClient');
 const env = require('../environment/environment').env();
 const userDataHandler = require('../user/userDataHandler');
 const bot = require('../clients/telegramClient').getBot();
+const strings = require('../i18n/strings');
 
 const volunteerDbVersion = '27'
 
@@ -46,7 +47,7 @@ const notifyAllUserTaken = async (id) => {
 
 const notifyAllNewUser = async (id) => {
     const userFriendlyId = userDataHandler.getUserFriendlyId(id)
-    const msg = `Visitor ${userFriendlyId} is waiting for assistance.\nUse take conversation command to start the conversation.`
+    const msg = strings.getString('notifyAllNewUser', userFriendlyId)
     await notifyAllAvailable(msg)
 }
 

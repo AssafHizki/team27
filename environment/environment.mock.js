@@ -13,7 +13,8 @@ module.exports = {
         EMAIL_RECIPIENTS: [],
         API_KEY: '',
         LOGZ_IO_TOKEN: '',
-        PLATFORM: 'MOCK'
+        PLATFORM: 'MOCK',
+        LOCALE: 'en_US',
     }
 };
 
