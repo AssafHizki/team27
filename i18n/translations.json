@@ -34,20 +34,26 @@
         "userEndConversarion": ""
     },
     "ar_IL": {
-        "notifyAllNewUser":"",
+        "notifyAllNewUser":"خُذي أمرا بالموافقة على المحادثة للبدَأ بسيرورة المحادثة أو بإجراء المحادثة\n.الزّائرة تنتظرُ المساعدة",
         "notifyAllUserClosed": "",
-        "notifyAllUserTaken": "",
-        "systemHeader": "",
-        "registerVolunteerSuccess": "",
+        "notifyAllUserTaken": "الزّائرةُ في محادثة مع متطَوّعةٍ اخرى. شكرًا لكِ",
+        "systemHeader": "نِظَامٌ",
+        "registerVolunteerSuccess": "تَمّ تسجيلُكِ بنجاح في النّظام",
         "registerVolunteerFail": "",
         "unRegisterVolunteer": "",
         "alreadyRegistered": "",
-        "notRegistered": "",
+        "notRegistered": "انت غَير مُسجّله / لست مُسجّلًة",
         "alreadyInConversation": "",
         "conversationStarted": "",
         "conversationEnded": "",
         "pendingUsers": "",
         "registeredUsers": "",
-        "userEndConversarion": ""
+        "userEndConversarion": "",
+        "takeConversationCmd": "قُومي بإجراءِ المحادثة",
+        "endConversationCmd": "انهي المحادثة",
+        "getPendingUsersCmd": "استَقبلي جميع الزّائراتِ المنتظراتِ في الدّور",
+        "getRegisteredCmd": "استقبلي كلّ المُتطَوّعاتِ المُسَجّلاتِ أسمائهن",
+        "registerCmd": "سجلي للنّظام",
+        "unRegisterCmd": "أزيلي/احذفي اسمكِ من النّظام"
     }
 }
