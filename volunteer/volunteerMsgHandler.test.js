@@ -98,8 +98,22 @@ describe('Volunteer message handler', () => {
         done.fail(new Error('Not implemented'))
     });
 
-    it.skip('should not take conversation by volunteer since he is assigned to user', async (done) => {
-        done.fail(new Error('Not implemented'))
+    it('should not take conversation by volunteer since he is assigned to user', async (done) => {
+        const volunteerId = 8910111
+        redis.get.mockImplementation((key) => {
+            if (key.includes('registeredvol')) {
+                return [volunteerId]
+            } else if (key.includes(volunteerId)) {
+                return {
+                    id: volunteerId,
+                    status: 'INCONVERSATION'
+                }
+            } else if (key.includes('pendingusers')) {
+                done.fail(new Error('Should not try to get pending users'))
+            }
+        });
+        await volunteerMsgHandler.newMsg(volunteerId, "Somename", "/take_conversation")
+        done();
     });
 
     it.skip('should not take conversation by volunteer since no pending users', async (done) => {

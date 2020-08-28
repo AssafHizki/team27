@@ -6,8 +6,11 @@ describe('Translations', () => {
         Object.keys(translations).forEach(lang => {
             expect(Object.keys(eng).length).toEqual(Object.keys(translations[lang]).length)
         });
-        // TODO: Compare names of keys
-        // TODO: Make sure values are not empty
+        Object.keys(eng).forEach(key => {
+            Object.keys(translations).forEach(lang => {
+                expect(translations[lang][key].length).toBeGreaterThan(2)
+            });
+        });
         done();
     });
 })
