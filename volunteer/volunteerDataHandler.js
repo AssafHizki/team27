@@ -44,14 +44,14 @@ const notifyAllUserClosed = async (id) => {
         pendingUsersNumber = pendingUsers.length;
     }
    
-    const msg = `Visitor ${userFriendlyId} has left the queue. Pending users number: ${pendingUsersNumber}`
-     
+    const msg =  strings.getString('notifyAllUserClosed', userFriendlyId, pendingUsersNumber);
+   
     await notifyAllAvailable(msg)
 }
 
 const notifyAllUserTaken = async (id) => {
     const userFriendlyId = userDataHandler.getUserFriendlyId(id)
-    const msg = `Visitor ${userFriendlyId} is being assisted by another volunteer. Thank you.`
+    const msg = strings.getString('notifyAllUserTaken', userFriendlyId)
     await notifyAllAvailable(msg)
 }
 
@@ -76,10 +76,11 @@ const notifyAllAvailable = async (text) => {
 }
 
 const sendMessageToVolunteer = async (id, text, isSystem = true) => {
+    const header = strings.getString('systemHeader');
     try {
         if (isSystem) {
             const parse_mode = 'Markdown';
-            await bot.sendMessage(id, `*== System: ==*\n${text}`, { parse_mode });
+            await bot.sendMessage(id, `${header}\n${text}`, { parse_mode });
         } else {
             await bot.sendMessage(id, text);
         }
@@ -217,11 +218,11 @@ const registerVolunteer = async (id, name, msg) => {
         registered.push(id)
         registered = [...new Set(registered)]
         await redis.set(key, registered)
-        await sendMessageToVolunteer(volunteer.id, `You are now registered`)
+        await sendMessageToVolunteer(volunteer.id, strings.getString('registerVolunteerSuccess'))
         logWarn(`Volunteer registered successfully: ${name}(${id})`);
     } else {
         logWarn(`Volunteer registered fail!: ${name}(${id})`);
-        await sendMessageToVolunteer(id, `Failed to register`)
+        await sendMessageToVolunteer(id, strings.getString('registerVolunteerFail'))
     }
 }
 
@@ -238,7 +239,7 @@ const unRegisterVolunteer = async (id, name) => {
         unassignUserToVolunteer(id)
         logError(`Assigned volunteer ${id} has unregistered`)
     }
-    await sendMessageToVolunteer(id, `You are now unregistered`)
+    await sendMessageToVolunteer(id, strings.getString('unRegisterVolunteer'))
     logInfo(`Volunteer is now unregistered: ${name}(${id})`);
 }
 
