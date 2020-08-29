@@ -34,8 +34,18 @@ const getPendingUsersKey = () => `pendingusers:${volunteerDbVersion}`
 const getRegisteredVolunteersKey = () => `registeredvol:${volunteerDbVersion}`
 
 const notifyAllUserClosed = async (id) => {
-    const userFriendlyId = userDataHandler.getUserFriendlyId(id)
-    const msg = `Visitor ${userFriendlyId} closed the conversation window. Thank you.`
+    const userFriendlyId = userDataHandler.getUserFriendlyId(id)   
+   
+    // Get pending users queue size
+    var pendingUsersNumber = 0;
+    const key = getPendingUsersKey();
+    let pendingUsers = await redis.get(key);
+    if (pendingUsers) {
+        pendingUsersNumber = pendingUsers.length;
+    }
+   
+    const msg = `Visitor ${userFriendlyId} has left the queue. Pending users number: ${pendingUsersNumber}`
+     
     await notifyAllAvailable(msg)
 }
 
