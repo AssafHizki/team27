@@ -116,8 +116,24 @@ describe('Volunteer message handler', () => {
         done();
     });
 
-    it.skip('should not take conversation by volunteer since no pending users', async (done) => {
-        done.fail(new Error('Not implemented'))
+    it('should not take conversation by volunteer since no pending users', async (done) => {
+        const volunteerId = 9101112
+        redis.get.mockImplementation((key) => {
+            if (key.includes('registeredvol')) {
+                return [volunteerId]
+            } else if (key.includes(volunteerId)) {
+                return {
+                    id: volunteerId,
+                    status: 'AVAILABLE'
+                }
+            } else if (key.includes('pendingusers')) {
+                return []
+            } else if (key.includes('USER')) {
+                done.fail(new Error('Should not try to get user'))
+            }
+        });
+        await volunteerMsgHandler.newMsg(volunteerId, "Somename", "/take_conversation")
+        done();
     });
 
     it.skip('should end conversation by volunteer', async (done) => {
@@ -128,7 +144,19 @@ describe('Volunteer message handler', () => {
         done.fail(new Error('Not implemented'))
     });
 
-    it.skip('should get pending users', async (done) => {
-        done.fail(new Error('Not implemented'))
+    it('should get pending users', async (done) => {
+        const volunteerId = 111213
+        redis.get.mockImplementation((key) => {
+            if (key.includes('registeredvol')) {
+                return [volunteerId]
+            } else if (key.includes(volunteerId)) {
+                return {
+                    id: volunteerId,
+                }
+            } else if (key.includes('pendingusers')) {
+                done();
+            }
+        });
+        await volunteerMsgHandler.newMsg(volunteerId, "Somename", "/get_pending_users")
     });
 })
