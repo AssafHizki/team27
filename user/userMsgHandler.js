@@ -74,10 +74,11 @@ const newMsg = async (req) => {
                     const conversationHistory = await historyHandler.getEnhancedConversationHistory(safeData.id)
                     await emailClient.send(safeData.id, conversationHistory)
                 } else {
-                    await volunteerDataHandler.removeFromPendingUsers(safeData.id)
-                    await volunteerDataHandler.notifyAllUserClosed(safeData.id);
-                    logInfo(`No assinged volunteer to user (end conversation) ${existingUser.id}`);
-                    return {body: {status: `unknown`}, status: 400}
+                    const didRemoved = await volunteerDataHandler.tryRemoveFromPendingUsers(safeData.id)
+                    if (didRemoved) {
+                        await volunteerDataHandler.notifyAllUserClosed(safeData.id);
+                        logInfo(`No assinged volunteer to user (end conversation) ${existingUser.id}`);
+                    }
                 }
             }
         } else if (safeData.type == 'typing') {

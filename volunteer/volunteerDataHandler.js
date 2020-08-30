@@ -150,18 +150,19 @@ const sendUserPendingMessagesToVolunteer = async (id, messages) => {
     });
 }
 
-const removeFromPendingUsers = async (userId) => {
+const tryRemoveFromPendingUsers = async (userId) => {
     const key = getPendingUsersKey()
     let pendingUsers = await redis.get(key)
     if (!pendingUsers) {
-        return
+        return false
     }
     var index = pendingUsers.indexOf(userId);
     if (index == -1) {
-        return
+        return false
     }
     pendingUsers.splice(index, 1);
     await redis.set(key, pendingUsers)
+    return true
 }
 
 const isVolunteerRegistered = async (id) => {
@@ -290,7 +291,7 @@ module.exports = {
     getVolunteerById,
     isAssignedToUser,
     sendUserPendingMessagesToVolunteer,
-    removeFromPendingUsers,
+    tryRemoveFromPendingUsers,
     getCommandFromMsg,
     isEndCommand,
     isTakeCommand,

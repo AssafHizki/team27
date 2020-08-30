@@ -28,7 +28,11 @@ describe('User message handler', () => {
         done.fail(new Error('Not implemented'))
     });
     
-    it.skip('should fail to end existing conversation since user not assigned', async (done) => {
+    it.skip('should fail to end existing conversation since user not assigned (conversarion ended by volunteer)', async (done) => {
+        done.fail(new Error('Not implemented'))
+    });
+
+    it.skip('should fail to end existing conversation since user not assigned (conversarion not started)', async (done) => {
         done.fail(new Error('Not implemented'))
     });
 })

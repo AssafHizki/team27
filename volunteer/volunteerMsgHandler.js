@@ -91,7 +91,7 @@ const newMsg = async (id, name, msg) => {
         }
         await volunteerDataHandler.assignUserToVolunteer(volunteer.id, userId)
         await userDataHandler.assignVolunteerToUser(userId, volunteer.id)
-        await volunteerDataHandler.removeFromPendingUsers(userId)
+        await volunteerDataHandler.tryRemoveFromPendingUsers(userId)
         await volunteerDataHandler.sendUserPendingMessagesToVolunteer(volunteer.id, user.pendingMessages, isSystem=false)
         await userDataHandler.clearPendingMessages(userId)
         await volunteerDataHandler.notifyAllUserTaken(userId);
