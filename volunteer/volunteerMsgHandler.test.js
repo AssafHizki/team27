@@ -1,7 +1,9 @@
 require('../testingbase');
 jest.mock('../clients/redisClient')
+jest.mock('../clients/emailClient')
 jest.mock('node-telegram-bot-api')
 const redis = require('../clients/redisClient');
+const email = require('../clients/emailClient');
 const volunteerMsgHandler = require('./volunteerMsgHandler');
 
 describe('Volunteer message handler', () => {
@@ -136,8 +138,35 @@ describe('Volunteer message handler', () => {
         done();
     });
 
-    it.skip('should end conversation by volunteer', async (done) => {
-        done.fail(new Error('Not implemented'))
+    it('should end conversation by volunteer', async (done) => {
+        const volunteerId = 121314
+        const userId = 'ABCDEFGHIJK'
+        redis.get.mockImplementation((key) => {
+            if (key.includes('registeredvol')) {
+                return [volunteerId]
+            } else if (key.includes(volunteerId)) {
+                return {
+                    id: volunteerId,
+                    status: 'INCONVERSATION',
+                    asssginedUser: userId
+                }
+            } else if (key.includes('pendingusers')) {
+                return []
+            } else if (key.includes('ROOM')) {
+                return null
+            } else if (key.includes(userId)) {
+                return {
+                    id: userId,
+                    status: 'INCONVERSATION'
+                }
+            }
+        });
+        email.send.mockImplementation((id) => {
+            if (id.includes(userId)) {
+                done();
+            }
+        })
+        await volunteerMsgHandler.newMsg(volunteerId, "Somename", "/end_conversation")
     });
 
     it.skip('should fail to end conversation by volunteer since he is not assigned', async (done) => {
