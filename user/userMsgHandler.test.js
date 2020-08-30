@@ -1,5 +1,5 @@
 describe('User message handler', () => {
-    it('should do something', async (done) => {
+    it.skip('should do something', async (done) => {
         done();
     });
 })

@@ -4,8 +4,8 @@ const logError = require('../clients/loggerClient').logError;
 // Volunteer
 const getRoomVolunteerKey = (id) => `room:vol:${id}`.toUpperCase()
 
-const getVolunteerRoom = async (asssginedUserId, volunteerId='') => {
-    const key = getRoomVolunteerKey(asssginedUserId)
+const getVolunteerRoom = async (assignedUserId, volunteerId='') => {
+    const key = getRoomVolunteerKey(assignedUserId)
     return await redis.get(key) || {
         createdAt: new Date(),
         volunteerId: volunteerId,
@@ -14,15 +14,15 @@ const getVolunteerRoom = async (asssginedUserId, volunteerId='') => {
 }
 
 const setRoomVolunteer = async (volunteer, room) => {
-    const key = getRoomVolunteerKey(volunteer.asssginedUser)
+    const key = getRoomVolunteerKey(volunteer.assignedUser)
     return await redis.setWithExpiration(key, room)
 }
 
 const addToVolunteer = async (volunteer, message) => {
-    if (!volunteer.asssginedUser) {
+    if (!volunteer.assignedUser) {
         logError(`No assgined user for volunteer ${volunteer.id} when trying to save history`)
     }
-    let room = await getVolunteerRoom(volunteer.asssginedUser, volunteer.id)
+    let room = await getVolunteerRoom(volunteer.assignedUser, volunteer.id)
     room.history.push({
         action: 'message',
         message, 
@@ -35,7 +35,7 @@ const addToVolunteer = async (volunteer, message) => {
 }
 
 const setVolunteerEnded = async (volunteer) => {
-    let room = await getVolunteerRoom(volunteer.asssginedUser, volunteer.id)
+    let room = await getVolunteerRoom(volunteer.assignedUser, volunteer.id)
     room.history.push({
         time: new Date(),
         name: volunteer.name,
@@ -47,7 +47,7 @@ const setVolunteerEnded = async (volunteer) => {
 }
 
 const setVolunteerStarted = async (volunteer) => {
-    let room = await getVolunteerRoom(volunteer.asssginedUser, volunteer.id)
+    let room = await getVolunteerRoom(volunteer.assignedUser, volunteer.id)
     room.history.push({
         time: new Date(),
         name: volunteer.name,

@@ -92,12 +92,42 @@ describe('Volunteer message handler', () => {
         await volunteerMsgHandler.newMsg(volunteerId, "Somename", "/unregister")
     });
 
-    it.skip('should take conversation by volunteer', async (done) => {
-        // volunteerDataHandler.notifyAllAvailable
-        // volunteerDataHandler.sendMessageToVolunteer
-        // sendStartChatToUser
-        // historyHandler.setVolunteerStarted
-        done.fail(new Error('Not implemented'))
+    it('should take conversation by volunteer', async (done) => {
+        const volunteerId = 141516
+        const userId = 'DEFGHIJKLMN'
+        let assinedTheUser = addedToPendingUsers = false
+        redis.get.mockImplementation((key) => {
+            if (key.includes('registeredvol')) {
+                return [volunteerId]
+            } else if (key.includes(volunteerId)) {
+                return {
+                    id: volunteerId,
+                    status: assinedTheUser ? 'INCONVERSATION': 'AVAILABLE',
+                    assignedUser: assinedTheUser ? userId : null
+                }
+            } else if (key.includes('pendingusers')) {
+                return [userId]
+            } else if (key.includes('ROOM') && key.includes(userId)) {
+                if (assinedTheUser && addedToPendingUsers) {
+                    done()
+                }
+            } else if (key.includes(userId)) {
+                return {
+                    id: userId,
+                    status: assinedTheUser ? 'INCONVERSATION' : 'CREATED',
+                    assginedVolunteer: assinedTheUser ? volunteerId : null,
+                    pendingMessages: []
+                }
+            }
+        });
+        redis.set.mockImplementation((key, val) => {
+            if (key.includes('USER') && key.includes(userId)) {
+                assinedTheUser = true
+            }if (key.includes('pendingusers')) {
+                addedToPendingUsers = true
+            }
+        });
+        await volunteerMsgHandler.newMsg(volunteerId, "Somename", "/take_conversation")
     });
 
     it('should not take conversation by volunteer since he is assigned to user', async (done) => {
@@ -148,7 +178,7 @@ describe('Volunteer message handler', () => {
                 return {
                     id: volunteerId,
                     status: 'INCONVERSATION',
-                    asssginedUser: userId
+                    assignedUser: userId
                 }
             } else if (key.includes('pendingusers')) {
                 return []
@@ -179,7 +209,7 @@ describe('Volunteer message handler', () => {
                 return {
                     id: volunteerId,
                     status: 'AVAILABLE',
-                    asssginedUser: null
+                    assignedUser: null
                 }
             } else if (key.includes('pendingusers')) {
                 return []

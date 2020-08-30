@@ -69,7 +69,7 @@ const newMsg = async (id, name, msg) => {
     const isGetPendingUsersCommand = volunteerDataHandler.isGetPendingUsersCommand(command)
     const isAssignedToUser = volunteerDataHandler.isAssignedToUser(volunteer)
     if (!command && isAssignedToUser) {
-        await sendMsgToUser(volunteer.asssginedUser, volunteer.name, msg);
+        await sendMsgToUser(volunteer.assignedUser, volunteer.name, msg);
         await historyHandler.addToVolunteer(volunteer, msg)
     } else if (isTakeCommand) {
         logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
@@ -97,11 +97,12 @@ const newMsg = async (id, name, msg) => {
         await volunteerDataHandler.notifyAllUserTaken(userId);
         const userFriendlyId = userDataHandler.getUserFriendlyId(userId)
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has started`)
-        await sendStartChatToUser(userId, volunteer.name);
-        await historyHandler.setVolunteerStarted(volunteer)
+        await sendStartChatToUser(userId, volunteer.name)
+        const updatedVolunteer = await volunteerDataHandler.getVolunteerById(id)
+        await historyHandler.setVolunteerStarted(updatedVolunteer)
     } else if (isEndCommand && isAssignedToUser) {
         logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
-        const userId = volunteer.asssginedUser
+        const userId = volunteer.assignedUser
         const userFriendlyId = userDataHandler.getUserFriendlyId(userId)
         await volunteerDataHandler.unassignUserToVolunteer(volunteer.id)
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has ended`)

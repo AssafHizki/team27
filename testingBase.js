@@ -7,3 +7,7 @@ jest.mock('logzio-nodejs', () => ({
         }
     })
 }))
+
+jest.mock('axios', () => ({
+    post: jest.fn(() => {})
+}))

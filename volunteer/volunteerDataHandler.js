@@ -25,7 +25,7 @@ const createVolunteerObject = (id, name) => {
         id: id,
         name: name,
         status: STATUS_AVAILABLE,
-        asssginedUser: null
+        assignedUser: null
     }
 }
 
@@ -113,22 +113,22 @@ const createVolunteerById = async (id, name) => {
 const assignUserToVolunteer = async (volunteerId, userId) => {
     let volunteerObject = await getVolunteerById(volunteerId)
     const volunteerKey = getVolunteerKey(volunteerId)
-    if (volunteerObject.asssginedUser) {
-        logWarn(`Volunteer already have assigned user ${volunteerId}-${volunteerObject.asssginedUser}`)
+    if (volunteerObject.assignedUser) {
+        logWarn(`Volunteer already have assigned user ${volunteerId}-${volunteerObject.assignedUser}`)
     }
     volunteerObject.status = STATUS_IN_CONVERSATION
-    volunteerObject.asssginedUser = userId
+    volunteerObject.assignedUser = userId
     await redis.set(volunteerKey, volunteerObject)
 }
 
 const unassignUserToVolunteer = async (volunteerId) => {
     let volunteerObject = await getVolunteerById(volunteerId)
     const volunteerKey = getVolunteerKey(volunteerId)
-    if (!volunteerObject.asssginedUser) {
-        logWarn(`Volunteer not assigned to any user ${volunteerId}-${volunteerObject.asssginedUser}`)
+    if (!volunteerObject.assignedUser) {
+        logWarn(`Volunteer not assigned to any user ${volunteerId}-${volunteerObject.assignedUser}`)
     }
     volunteerObject.status = STATUS_AVAILABLE
-    volunteerObject.asssginedUser = null
+    volunteerObject.assignedUser = null
     await redis.set(volunteerKey, volunteerObject)
 }
 
@@ -136,7 +136,7 @@ const unassignVolunteer = async (volunteerId) => {
     const volunteerKey = getVolunteerKey(volunteerId)
     let volunteerObject = await redis.get(volunteerKey)
     volunteerObject.status = STATUS_AVAILABLE
-    volunteerObject.asssginedUser = null
+    volunteerObject.assignedUser = null
     await redis.set(volunteerKey, volunteerObject)
 }
 

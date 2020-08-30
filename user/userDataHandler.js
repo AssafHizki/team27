@@ -15,7 +15,7 @@ const createUserObject = (safeData) => {
         pendingMessages: [],
         status: STATUS_CREATED,
         createdTimestamp: Date.now(),
-        asssginedVolunteer: null,
+        assginedVolunteer: null,
     }
 }
 
@@ -45,7 +45,7 @@ const assignVolunteerToUser = async (userId, volunteerId) => {
     const userKey = getUserKey(userId)
     let userObject = await redis.get(userKey)
     userObject.status = STATUS_IN_CONVERSATION
-    userObject.asssginedVolunteer = volunteerId
+    userObject.assginedVolunteer = volunteerId
     await redis.set(userKey, userObject)
 }
 
@@ -53,7 +53,7 @@ const setConversationEnded = async (id) => {
     const userKey = getUserKey(id)
     let userObject = await redis.get(userKey)
     userObject.status = STATUS_ENDED
-    userObject.asssginedVolunteer = null
+    userObject.assginedVolunteer = null
     await redis.set(userKey, userObject)
 }
 
@@ -66,7 +66,7 @@ const findAssingedVolunteerId = async (userId) => {
     try {
         const userKey = getUserKey(userId)
         const userObject = await redis.get(userKey)
-        return userObject.asssginedVolunteer;
+        return userObject.assginedVolunteer;
     } catch (error) {
         logError(`No assingned volunteer to user ${userId}`)
         return false
@@ -84,7 +84,7 @@ const unassignVolunteerToUser = async (userId, volunteerId) => {
     const userKey = getUserKey(userId)
     let userObject = await redis.get(userKey)
     userObject.status = STATUS_ENDED
-    userObject.asssginedVolunteer = null
+    userObject.assginedVolunteer = null
     await redis.set(userKey, userObject)
 }
 
