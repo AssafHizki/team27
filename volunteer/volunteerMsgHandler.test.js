@@ -169,8 +169,34 @@ describe('Volunteer message handler', () => {
         await volunteerMsgHandler.newMsg(volunteerId, "Somename", "/end_conversation")
     });
 
-    it.skip('should fail to end conversation by volunteer since he is not assigned', async (done) => {
-        done.fail(new Error('Not implemented'))
+    it('should fail to end conversation by volunteer since he is not assigned', async (done) => {
+        const volunteerId = 131415
+        const userId = 'BCDEFGHIJKL'
+        redis.get.mockImplementation((key) => {
+            if (key.includes('registeredvol')) {
+                return [volunteerId]
+            } else if (key.includes(volunteerId)) {
+                return {
+                    id: volunteerId,
+                    status: 'AVAILABLE',
+                    asssginedUser: null
+                }
+            } else if (key.includes('pendingusers')) {
+                return []
+            } else if (key.includes('ROOM')) {
+                return null
+            } else if (key.includes(userId)) {
+                return {
+                    id: userId,
+                    status: 'INCONVERSATION'
+                }
+            }
+        });
+        email.send.mockImplementation(() => {
+            done.fail(new Error('Should not try to send email'))
+        })
+        await volunteerMsgHandler.newMsg(volunteerId, "Somename", "/end_conversation")
+        done()
     });
 
     it('should get pending users', async (done) => {
