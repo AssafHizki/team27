@@ -7,9 +7,11 @@ const email = require('../clients/emailClient');
 const volunteerMsgHandler = require('./volunteerMsgHandler');
 
 describe('Volunteer message handler', () => {
+
     afterEach(() => {
         jest.clearAllMocks();
     })
+    
     it('should register a new volunteer', async (done) => {
         const volunteerId = 123456
         redis.get.mockImplementation((key) => {
