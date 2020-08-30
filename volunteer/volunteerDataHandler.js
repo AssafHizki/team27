@@ -35,15 +35,8 @@ const getRegisteredVolunteersKey = () => `registeredvol:${volunteerDbVersion}`
 
 const notifyAllUserClosed = async (id) => {
     const userFriendlyId = userDataHandler.getUserFriendlyId(id)   
-   
-    // Get pending users queue size
-    var pendingUsersNumber = 0;
-    let pendingUsers = getPendingUsers();
-    
-    pendingUsersNumber = pendingUsers.length;   
-   
-    const msg =  strings.getString('notifyAllUserClosed', userFriendlyId, pendingUsersNumber);
-   
+    const pendingUsersLength = getPendingUsers().length;
+    const msg =  strings.getString('notifyAllUserClosed', userFriendlyId, pendingUsersLength);
     await notifyAllAvailable(msg)
 }
 
