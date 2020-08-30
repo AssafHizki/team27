@@ -39,9 +39,8 @@ const notifyAllUserClosed = async (id) => {
     // Get pending users queue size
     var pendingUsersNumber = 0;
     let pendingUsers = getPendingUsers();
-    if (pendingUsers) {
-        pendingUsersNumber = pendingUsers.length;
-    }
+    
+    pendingUsersNumber = pendingUsers.length;   
    
     const msg =  strings.getString('notifyAllUserClosed', userFriendlyId, pendingUsersNumber);
    
