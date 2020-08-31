@@ -15,9 +15,10 @@ describe('User message handler', () => {
     it('should send message from user to assigned volunteer', async (done) => {
         const userId = 'FAKEABCDEFGH'
         const volunteerId = 50515253
+        let roomWasSet = false
         redis.get.mockImplementation((key) => {
-            if (key.includes('ROOM:USR:FAKEABCDEFGH')) {
-                done()
+            if (key.includes('ROOM:USR:FAKE')) {
+                roomWasSet = true
             } else if (key.includes(userId)) {
                 return {
                     id: userId,
@@ -27,31 +28,122 @@ describe('User message handler', () => {
                 }
             }
         });
-        await userMsgHandler.newMsg({body: {
+        res = await userMsgHandler.newMsg({body: {
             userId: userId,
             text: 'sometext',
-            type: 'text'
+            eventType: 'text'
         }})
+        expect(res.status).toEqual(200)
+        expect(roomWasSet).toBe(true)
+        done()
     });
 
-    it.skip('should not send message from user to assigned volunteer since user no exist', async (done) => {
-        done.fail(new Error('Not implemented'))
+    it('should not send message from user to assigned volunteer since user no exist', async (done) => {
+        const userId = 'FAKEBCDEFG'
+        let roomWasSet = false
+        redis.get.mockImplementation((key) => {
+            if (key.includes('ROOM:USR:FAKE')) {
+                roomWasSet = true
+            } else if (key.includes(userId)) {
+                return null
+            }
+        });
+        res = await userMsgHandler.newMsg({body: {
+            userId: userId,
+            text: 'sometext',
+            eventType: 'text'
+        }})
+        expect(res.status).toEqual(400)
+        expect(roomWasSet).toBe(false)
+        done()
     });
 
-    it.skip('should not send message from user to assigned volunteer since user not assigned', async (done) => {
-        done.fail(new Error('Not implemented'))
+    it('should not send message from user to assigned volunteer since user not assigned', async (done) => {
+        const userId = 'FAKEABCDEFGH'
+        let roomWasSet = false
+        redis.get.mockImplementation((key) => {
+            if (key.includes('ROOM:USR:FAKE')) {
+                roomWasSet = true
+            } else if (key.includes(userId)) {
+                return {
+                    id: userId,
+                    status:'CREATED',
+                    assginedVolunteer: null,
+                    pendingMessages: []
+                }
+            }
+        });
+        res = await userMsgHandler.newMsg({body: {
+            userId: userId,
+            text: 'sometext',
+            eventType: 'text'
+        }})
+        expect(res.status).toEqual(200)
+        expect(roomWasSet).toBe(false)
+        done()
     });
 
-    it.skip('should start new conversation', async (done) => {
-        done.fail(new Error('Not implemented'))
+    it('should start new conversation', async (done) => {
+        const userId = 'FAKECDEFGHI'
+        let roomWasSet = false
+        redis.set.mockImplementation((key) => {
+            if (key.includes('pendingusers:27')) {
+                roomWasSet = true
+            }
+        });
+        res = await userMsgHandler.newMsg({body: {
+            userId: userId,
+            eventType: 'start'
+        }})
+        expect(res.status).toEqual(200)
+        expect(roomWasSet).toBe(true)
+        done()
     });
 
-    it.skip('should fail to start new conversation since user already exist', async (done) => {
-        done.fail(new Error('Not implemented'))
+    it('should fail to start new conversation since user already exist', async (done) => {
+        const userId = 'FAKEDEFGHIJKL'
+        redis.get.mockImplementation((key) => {
+            if (key.includes(userId)) {
+                return {
+                    id: userId,
+                    status: 'CREATED',
+                    assginedVolunteer: null,
+                    pendingMessages: []
+                }
+            }
+        });
+        res = await userMsgHandler.newMsg({body: {
+            userId: userId,
+            eventType: 'start'
+        }})
+        expect(res.status).toEqual(400)
+        done()
     });
 
     it.skip('should end existing conversation', async (done) => {
-        done.fail(new Error('Not implemented'))
+        // TODO
+        const userId = 'FAKEFGHIJKLMNO'
+        const volunteerId = 565758
+        let roomWasSet = false
+        redis.get.mockImplementation((key) => {
+            if (key.includes('ROOM:USR:FAKE')) {
+                roomWasSet = true
+            } else if (key.includes(userId)) {
+                return {
+                    id: userId,
+                    status:'INCONVERSATION',
+                    assginedVolunteer: volunteerId,
+                    pendingMessages: []
+                }
+            }
+        });
+        res = await userMsgHandler.newMsg({body: {
+            userId: userId,
+            eventType: 'end'
+        }})
+        expect(res.status).toEqual(200)
+        expect(roomWasSet).toBe(true)
+        done()
     });
 
     it.skip('should fail to end existing conversation since user not exist', async (done) => {
