@@ -5,6 +5,7 @@ const logDebug = require('../clients/loggerClient').logDebug;const userDataHandl
 const volunteerDataHandler = require('../volunteer/volunteerDataHandler');
 const historyHandler = require('../history/historyHandler');
 const emailClient = require('../clients/emailClient');
+const analyticsClient = require('../clients/analyticsClient');
 
 const getSafeData = (req) => {
     if (!req || !req.body || !req.body.userId) {
@@ -47,6 +48,7 @@ const newMsg = async (req) => {
             } else {
                 await volunteerDataHandler.sendMessageToVolunteer(assingedVolunteerId, safeData.text, isSystem=false);
                 await historyHandler.addToUser(safeData.id, safeData.text)
+                await analyticsClient.userMessage(safeData.id, assingedVolunteerId, safeData.text.length);
             }
         } else if (safeData.type == 'start') {
             if (existingUser) {
@@ -57,7 +59,8 @@ const newMsg = async (req) => {
                 await userDataHandler.createUser(safeData);
                 await volunteerDataHandler.addToPendingUsers(safeData);
                 await volunteerDataHandler.notifyAllNewUser(safeData.id);
-                await historyHandler.setUserStarted(safeData.id)
+                await historyHandler.setUserStarted(safeData.id);
+                await analyticsClient.conversationEnqueue(safeData.id);
             }
         } else if (safeData.type == 'end') {
             if (!existingUser) {
@@ -72,12 +75,14 @@ const newMsg = async (req) => {
                     await userDataHandler.setConversationEnded(safeData.id);
                     await historyHandler.setUserEnded(safeData.id)
                     const conversationHistory = await historyHandler.getEnhancedConversationHistory(safeData.id)
-                    await emailClient.send(safeData.id, conversationHistory)
+                    await emailClient.send(safeData.id, conversationHistory);
+                    await analyticsClient.conversationEndedByUser(safeData.id, assingedVolunteerId);
                 } else {
                     const didRemoved = await volunteerDataHandler.tryRemoveFromPendingUsers(safeData.id)
                     if (didRemoved) {
                         await volunteerDataHandler.notifyAllUserClosed(safeData.id);
                         logInfo(`No assinged volunteer to user (end conversation) ${existingUser.id}`);
+                        await analyticsClient.conversationTerminated(safeData.id);
                     }
                 }
             }

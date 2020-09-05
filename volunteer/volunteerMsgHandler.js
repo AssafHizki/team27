@@ -8,6 +8,7 @@ const userDataHandler = require('../user/userDataHandler');
 const env = require('../environment/environment').env();
 const historyHandler = require('../history/historyHandler');
 const emailClient = require('../clients/emailClient');
+const analyticsClient = require('../clients/analyticsClient');
 
 
 const CHAT_URL = `${env.CLIENT_BASE_URL}/api/chat`
@@ -70,7 +71,8 @@ const newMsg = async (id, name, msg) => {
     const isAssignedToUser = volunteerDataHandler.isAssignedToUser(volunteer)
     if (!command && isAssignedToUser) {
         await sendMsgToUser(volunteer.assignedUser, volunteer.name, msg);
-        await historyHandler.addToVolunteer(volunteer, msg)
+        await historyHandler.addToVolunteer(volunteer, msg);
+        await analyticsClient.volunteerMessage(volunteer.assignedUser, volunteer.id, msg.length);
     } else if (isTakeCommand) {
         logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
         if (isAssignedToUser) {
@@ -97,9 +99,10 @@ const newMsg = async (id, name, msg) => {
         await volunteerDataHandler.notifyAllUserTaken(userId);
         const userFriendlyId = userDataHandler.getUserFriendlyId(userId)
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has started`)
-        await sendStartChatToUser(userId, volunteer.name)
-        const updatedVolunteer = await volunteerDataHandler.getVolunteerById(id)
-        await historyHandler.setVolunteerStarted(updatedVolunteer)
+        await sendStartChatToUser(userId, volunteer.name);
+        const updatedVolunteer = await volunteerDataHandler.getVolunteerById(id);
+        await historyHandler.setVolunteerStarted(updatedVolunteer);
+        await analyticsClient.conversationStarted(userId, volunteer.id);
     } else if (isEndCommand && isAssignedToUser) {
         logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
         const userId = volunteer.assignedUser
@@ -109,8 +112,9 @@ const newMsg = async (id, name, msg) => {
         await userDataHandler.unassignVolunteerToUser(userId, volunteer.id)
         await sendEndChatToUser(userId, volunteer.name);
         await historyHandler.setVolunteerEnded(volunteer)
-        const conversationHistory = await historyHandler.getEnhancedConversationHistory(userId)
-        await emailClient.send(userId, conversationHistory)
+        const conversationHistory = await historyHandler.getEnhancedConversationHistory(userId);
+        await emailClient.send(userId, conversationHistory);
+        await analyticsClient.conversationEndedByVolunteer(userId, volunteer.id);
     } else if (isGetPendingUsersCommand) {
         logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
         const pending = await volunteerDataHandler.getPendingUsers()

@@ -29,7 +29,7 @@ app.post('/telegramVolunteerMessage', async (req, res) => {
   if (req && req.body && req.body.message && req.body.message.from.id) {
     const volunteerId = req.body.message.from.id;
     const volunteerName = req.body.message.from.first_name;
-    const ret = await volunteerMsgHandler.newMsg(volunteerId, volunteerName, req.body.message.text)
+    const ret = await volunteerMsgHandler.newMsg(volunteerId, volunteerName, req.body.message.from.text)
     res.status(ret.status).send(ret.body);
   } else {
     res.status(400).send({status: 'unknown request'});
