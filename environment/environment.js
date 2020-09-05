@@ -1,4 +1,4 @@
-const VERSION = '1.1.0'
+const VERSION = '1.2.0'
 
 module.exports = {
     env: (() => {
@@ -24,6 +24,7 @@ module.exports = {
 
         }
         env.VERSION = VERSION
+        env.AMPLITUDE_BASE_URL = 'https://api.amplitude.com/2/httpapi'
         console.log(`Loading environment ${env.ENV_NAME} (${env.VERSION})`)
         return env
     })

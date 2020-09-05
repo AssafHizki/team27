@@ -15,6 +15,7 @@ module.exports = {
         LOGZ_IO_TOKEN: '',
         PLATFORM: 'MOCK',
         LOCALE: 'en_US',
+        AMPLITUDE_API_KEY: ''
     }
 };
 
