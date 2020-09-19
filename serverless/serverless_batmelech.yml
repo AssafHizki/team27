@@ -1,0 +1,33 @@
+service: batmelech
+
+provider:
+  name: google
+  stage: prod
+  runtime: nodejs10
+  region: us-central1
+  project: batmelech
+  credentials: 'C:\Users\meirt\Desktop\batmelech-key.json'
+  environment:
+    CLIENT: 'batmelech'
+
+plugins:
+  - serverless-google-cloudfunctions
+
+package:
+  exclude:
+    - node_modules/**
+    - .gitignore
+    - .git/**
+
+functions:
+  user:
+    name: userMessage
+    handler: userMessage
+    events:
+      - http: user
+
+  volunteer:
+    name: volunteerMessage
+    handler: volunteerMessage
+    events:
+      - http: volunteer

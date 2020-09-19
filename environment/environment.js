@@ -8,6 +8,10 @@ module.exports = {
                 env = require('./environment.prod').env;
                 env.ENV_NAME = 'Production';
                 break;
+            case 'batmelech':
+                env = require('./environment.batmelech').env;
+                env.ENV_NAME = 'BATMELECH';
+                break;
             case 'maan':
                 env = require('./environment.maan').env;
                 env.ENV_NAME = 'MAAN';
