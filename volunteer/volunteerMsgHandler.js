@@ -99,9 +99,8 @@ const newMsg = async (id, name, msg) => {
         await volunteerDataHandler.tryRemoveFromPendingUsers(userId)
         await volunteerDataHandler.sendUserPendingMessagesToVolunteer(volunteer.id, user.pendingMessages, isSystem=false)
         await userDataHandler.clearPendingMessages(userId)
-        await volunteerDataHandler.notifyAllUserTaken(userId);
+        await volunteerDataHandler.notifyAllUserTaken(userId, volunteer.name);
         const userFriendlyId = userDataHandler.getUserFriendlyId(userId)
-        
         const msg = strings.getString('conversationStarted', userFriendlyId)
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, msg)
         await sendStartChatToUser(userId, volunteer.name);

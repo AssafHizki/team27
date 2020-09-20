@@ -71,7 +71,7 @@ const newMsg = async (req) => {
                 logInfo(`User end: ${safeData.name}(${safeData.id})`)
                 const assingedVolunteerId = await userDataHandler.findAssingedVolunteerId(safeData.id)
                 if (assingedVolunteerId) {
-                    const msg = strings.getString('personClosedConversation')
+                    const msg = strings.getString('userEndConversarion')
                     await volunteerDataHandler.sendMessageToVolunteer(assingedVolunteerId, msg);
                     await volunteerDataHandler.unassignVolunteer(assingedVolunteerId)
                     await userDataHandler.setConversationEnded(safeData.id);

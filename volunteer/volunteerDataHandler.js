@@ -40,9 +40,9 @@ const notifyAllUserClosed = async (id) => {
     await notifyAllAvailable(msg)
 }
 
-const notifyAllUserTaken = async (id) => {
-    const userFriendlyId = userDataHandler.getUserFriendlyId(id)
-    const msg = strings.getString('notifyAllUserTaken', userFriendlyId)
+const notifyAllUserTaken = async (userId, volunteerName) => {
+    const userFriendlyId = userDataHandler.getUserFriendlyId(userId)
+    const msg = strings.getString('notifyAllUserTaken', userFriendlyId, volunteerName)
     await notifyAllAvailable(msg)
 }
 
