@@ -6,6 +6,7 @@ const volunteerDataHandler = require('../volunteer/volunteerDataHandler');
 const historyHandler = require('../history/historyHandler');
 const emailClient = require('../clients/emailClient');
 const analyticsClient = require('../clients/analyticsClient');
+const strings = require('../i18n/strings'); 
 
 const getSafeData = (req) => {
     if (!req || !req.body || !req.body.userId) {
@@ -70,7 +71,8 @@ const newMsg = async (req) => {
                 logInfo(`User end: ${safeData.name}(${safeData.id})`)
                 const assingedVolunteerId = await userDataHandler.findAssingedVolunteerId(safeData.id)
                 if (assingedVolunteerId) {
-                    await volunteerDataHandler.sendMessageToVolunteer(assingedVolunteerId, 'This person has closed the conversation window. Thank you.');
+                    const msg = strings.getString('personClosedConversation')
+                    await volunteerDataHandler.sendMessageToVolunteer(assingedVolunteerId, msg);
                     await volunteerDataHandler.unassignVolunteer(assingedVolunteerId)
                     await userDataHandler.setConversationEnded(safeData.id);
                     await historyHandler.setUserEnded(safeData.id)

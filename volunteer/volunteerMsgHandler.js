@@ -9,7 +9,7 @@ const env = require('../environment/environment').env();
 const historyHandler = require('../history/historyHandler');
 const emailClient = require('../clients/emailClient');
 const analyticsClient = require('../clients/analyticsClient');
-
+const strings = require('../i18n/strings'); 
 
 const CHAT_URL = `${env.CLIENT_BASE_URL}/api/chat`
 
@@ -51,14 +51,16 @@ const newMsg = async (id, name, msg) => {
     const isVolunteerRegistered = await volunteerDataHandler.isVolunteerRegistered(id)
     if (isRegisterCommand) {
         if (isVolunteerRegistered) {
-            await volunteerDataHandler.sendMessageToVolunteer(id, `You are already registered!`)
+            const msg = strings.getString('alreadyRegistered')
+            await volunteerDataHandler.sendMessageToVolunteer(id, msg)
         } else {
             await volunteerDataHandler.registerVolunteer(id, name, msg)
         }
         return emptySuccessMassage
     }
     if (!isVolunteerRegistered) {
-        await volunteerDataHandler.sendMessageToVolunteer(id, `You are not registered`)
+        const msg = strings.getString('notRegistered')
+        await volunteerDataHandler.sendMessageToVolunteer(id, msg)
         logWarn(`Volunteer not exist: ${name}(${id}): ${msg}`);
         return emptySuccessMassage
     }
@@ -76,7 +78,8 @@ const newMsg = async (id, name, msg) => {
     } else if (isTakeCommand) {
         logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
         if (isAssignedToUser) {
-            await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `You are already in a conversation`)
+            const msg = strings.getString('alreadyInConversation',)
+            await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, msg)
             return emptySuccessMassage
         }
         const pending = await volunteerDataHandler.getPendingUsers()
@@ -98,7 +101,9 @@ const newMsg = async (id, name, msg) => {
         await userDataHandler.clearPendingMessages(userId)
         await volunteerDataHandler.notifyAllUserTaken(userId);
         const userFriendlyId = userDataHandler.getUserFriendlyId(userId)
-        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has started`)
+        
+        const msg = strings.getString('conversationStarted', userFriendlyId)
+        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, msg)
         await sendStartChatToUser(userId, volunteer.name);
         const updatedVolunteer = await volunteerDataHandler.getVolunteerById(id);
         await historyHandler.setVolunteerStarted(updatedVolunteer);
@@ -108,7 +113,8 @@ const newMsg = async (id, name, msg) => {
         const userId = volunteer.assignedUser
         const userFriendlyId = userDataHandler.getUserFriendlyId(userId)
         await volunteerDataHandler.unassignUserToVolunteer(volunteer.id)
-        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Conversation with ${userFriendlyId} has ended`)
+        const msg = strings.getString('conversationEnded', userFriendlyId)
+        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, msg)
         await userDataHandler.unassignVolunteerToUser(userId, volunteer.id)
         await sendEndChatToUser(userId, volunteer.name);
         await historyHandler.setVolunteerEnded(volunteer)
@@ -119,14 +125,16 @@ const newMsg = async (id, name, msg) => {
         logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
         const pending = await volunteerDataHandler.getPendingUsers()
         const friendlyPending = pending.map(id => userDataHandler.getUserFriendlyId(id)).join(',')
-        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Pending users: ${friendlyPending}`)
+        const msg = strings.getString('pendingUsers', friendlyPending)
+        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, msg)
     } else if (isUnRegisterCommand) {
         logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
         await volunteerDataHandler.unRegisterVolunteer(volunteer.id, volunteer.name)
     } else if (isGetRegistered) {
         logInfo(`Volunteer Command: ${name}(${id}): ${command}`);
         const names = await volunteerDataHandler.getRegisteredVolunteersByNames()
-        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, `Registered: ${names.join(',')}`)
+        const msg = strings.getString('registeredUsers', names.join(','))
+        await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, msg)
     } else {
         logError(`Invalid volunteer flow: ${name}(${id}). Command: ${command}. Assinged: ${isAssignedToUser}`);
     }
