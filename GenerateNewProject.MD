@@ -15,7 +15,7 @@
 * Update the commands:
 /mybots -> Edit Bot -> Edit Commands:
 
-```take_conversation - Get conversation from pending queue
+take_conversation - Get conversation from pending queue
 end_conversation - End current conversation
 get_pending_users - Get list of pending users
 get_registered - See who is registered on the platform
