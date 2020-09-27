@@ -6,6 +6,7 @@ const env = require('../environment/environment').env();
 const userDataHandler = require('../user/userDataHandler');
 const bot = require('../clients/telegramClient').getBot();
 const strings = require('../i18n/strings');
+const historyHandler = require('../history/historyHandler');
 
 const volunteerDbVersion = '27'
 
@@ -34,9 +35,10 @@ const getPendingUsersKey = () => `pendingusers:${volunteerDbVersion}`
 const getRegisteredVolunteersKey = () => `registeredvol:${volunteerDbVersion}`
 
 const notifyAllUserClosed = async (id) => {
-    const userFriendlyId = userDataHandler.getUserFriendlyId(id)   
+    const userFriendlyId = userDataHandler.getUserFriendlyId(id)
     const pendingUsersLength = (await getPendingUsers()).length;
-    const msg = strings.getString('notifyAllUserClosed', userFriendlyId, pendingUsersLength);
+    const waitingTime = await historyHandler.getTimeFromStart(id)
+    const msg = strings.getString('notifyAllUserClosed', userFriendlyId, waitingTime, pendingUsersLength);
     await notifyAllAvailable(msg)
 }
 

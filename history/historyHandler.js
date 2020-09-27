@@ -1,3 +1,4 @@
+const moment = require('moment')
 const redis = require('../clients/redisClient');
 const logError = require('../clients/loggerClient').logError;
 
@@ -144,6 +145,17 @@ const getEnhancedConversationHistory = async(userId) => {
     return sortedHistoryArray.map(mapHistoryEvent).join('\n')
 }
 
+const getTimeFromStart = async (userId) => {
+    const userRoom = await getUserRoom(userId)
+    const start = new Date(userRoom.createdAt)
+    const diff = new Date() - start
+    if (diff < 1000*60*2) {
+        return moment(Date.now()).diff(start, 'seconds') + ' seconds'
+    } else {
+        return moment(Date.now()).diff(start, 'minutes') + ' minutes'
+    }
+}
+
 module.exports = {
     addToUser,
     addToVolunteer,
@@ -152,4 +164,5 @@ module.exports = {
     setUserStarted,
     setVolunteerStarted,
     getEnhancedConversationHistory,
+    getTimeFromStart,
 }
