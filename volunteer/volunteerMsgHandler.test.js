@@ -172,6 +172,7 @@ describe('Volunteer message handler', () => {
 
     it('should end conversation by volunteer', async (done) => {
         const volunteerId = 121314
+        const volunteerName = 'John Snow'
         const userId = 'ABCDEFGHIJK'
         redis.get.mockImplementation((key) => {
             if (key.includes('registeredvol')) {
@@ -180,7 +181,8 @@ describe('Volunteer message handler', () => {
                 return {
                     id: volunteerId,
                     status: 'INCONVERSATION',
-                    assignedUser: userId
+                    assignedUser: userId,
+                    name: volunteerName,
                 }
             } else if (key.includes('pendingusers')) {
                 return []

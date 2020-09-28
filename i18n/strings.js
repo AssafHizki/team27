@@ -12,6 +12,6 @@ let strings = new LocalizedStrings(translations,
     }
 );
 
-exports.getString = (key, var1, var2, var3) => {
-    return strings.formatString(key, var1, var2, var3)
+exports.getString = (key, var1, var2, var3, var4, var5, var6) => {
+    return strings.formatString(key, var1, var2, var3, var4, var5, var6)
 }

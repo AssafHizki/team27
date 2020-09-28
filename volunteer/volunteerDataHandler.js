@@ -237,6 +237,18 @@ const unRegisterVolunteer = async (id, name) => {
     logInfo(`Volunteer is now unregistered: ${name}(${id})`);
 }
 
+const sendConversationSummery = async (userId, volunteerId, endedBy) => {
+    const e2eConversationTime = await historyHandler.getTimeFromStart(userId)
+    const userMessageCount = (await historyHandler.getUserMessageCount(userId)).toString()
+    const volunterMessageCount = (await historyHandler.getVolunteerMessageCount(userId)).toString()
+    const volunteerName = (await getVolunteerById(volunteerId)).name
+    const userFriendlyId = userDataHandler.getUserFriendlyId(userId)
+    const typeOfEnderString = strings.getString(endedBy)
+    const msg = strings.getString('conversationSummery',
+        volunteerName, userFriendlyId, typeOfEnderString, e2eConversationTime, userMessageCount, volunterMessageCount)
+    await notifyAllAvailable(msg)
+}
+
 const getCommandFromMsg = (msg) => {
     if (msg.startsWith('/end_conversation') || msg.startsWith('cmd_end_conversation')) {
         return COMMAND_END_CONVERSATION
@@ -310,4 +322,5 @@ module.exports = {
     getRegisteredVolunteers,
     getRegisteredVolunteersByNames,
     isVolunteerRegistered,
+    sendConversationSummery,
 }

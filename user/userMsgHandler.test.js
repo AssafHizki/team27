@@ -126,6 +126,8 @@ describe('User message handler', () => {
         redis.get.mockImplementation((key) => {
             if (key.includes('ROOM:USR:FAKE')) {
                 return null
+            } else if (key.includes('ROOM:VOL:FAKEFGHIJKLMNO')) {
+                return null
             } else if (key.includes(userId)) {
                 return {
                     id: userId,
@@ -137,7 +139,8 @@ describe('User message handler', () => {
                 return {
                     id: volunteerId,
                     status: 'INCONVERSATION',
-                    assignedUser: userId
+                    assignedUser: userId,
+                    name: "Eminem"
                 }
             }
         });

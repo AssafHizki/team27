@@ -1,5 +1,6 @@
 const moment = require('moment')
 const redis = require('../clients/redisClient');
+const strings = require('../i18n/strings'); 
 const logError = require('../clients/loggerClient').logError;
 
 // Volunteer
@@ -150,10 +151,26 @@ const getTimeFromStart = async (userId) => {
     const start = new Date(userRoom.createdAt)
     const diff = new Date() - start
     if (diff < 1000*60*2) {
-        return moment(Date.now()).diff(start, 'seconds') + ' seconds'
+        const time = moment(Date.now()).diff(start, 'seconds')
+        const unit = strings.getString('seconds')
+        return `${time} ${unit}`
     } else {
-        return moment(Date.now()).diff(start, 'minutes') + ' minutes'
+        const time = moment(Date.now()).diff(start, 'minutes')
+        const unit = strings.getString('minutes')
+        return `${time} ${unit}`
     }
+}
+
+const getUserMessageCount = async (userId) => {
+    const room = await getUserRoom(userId)
+    const onlyMessages = room.history.filter(x => x.action === 'message')
+    return onlyMessages.length
+}
+
+const getVolunteerMessageCount = async (userId) => {
+    const room = await getVolunteerRoom(userId)
+    const onlyMessages = room.history.filter(x => x.action === 'message')
+    return onlyMessages.length
 }
 
 module.exports = {
@@ -165,4 +182,6 @@ module.exports = {
     setVolunteerStarted,
     getEnhancedConversationHistory,
     getTimeFromStart,
+    getUserMessageCount,
+    getVolunteerMessageCount,
 }

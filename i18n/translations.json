@@ -14,7 +14,12 @@
         "conversationEnded": "Conversation with {0} has ended",
         "pendingUsers": "Pending users in queue: {0}",
         "registeredUsers": "Registered: {0}",
-        "userEndConversarion": "This person has closed the conversation window. Thank you."
+        "userEndConversarion": "This person has closed the conversation window. Thank you.",
+        "conversationSummery": "Conversation between {0} and {1} has ended by {2}. It lasted {3} and each side send following message count\nUser: {4}\nVolunteer: {5}",
+        "theUser": "the user",
+        "theVolunteer": "the volunteer",
+        "minutes": "minutes",
+        "seconds": "seconds"
     },
     "he_IL": {
         "notifyAllNewUser":"פנייה {0} ממתינה לתמיכה.\nהשתמשי בפקודה המתאימה כדי להתחיל את השיחה",
@@ -31,7 +36,12 @@
         "conversationEnded": "שיחתך עם {0} הסתיימה. תודה לך.",
         "pendingUsers": "פניות מחכות בתור: {0}",
         "registeredUsers": "מתנדבות רשומות למערכת: {0}",
-        "userEndConversarion": "הפונה סגר/ה את השיחה. תודה לך."
+        "userEndConversarion": "הפונה סגר/ה את השיחה. תודה לך.",
+        "conversationSummery": " השיחה בין {0} ו{1} הסתיימה עי {2}. השיחה נמשכה {3} וכל צד שלח את כמות ההודעות הבאה:\nמשתמש: {4}\nמתנדב: {5} ",
+        "theUser": "המשתמש",
+        "theVolunteer": "המתנדב",
+        "minutes": "דקות",
+        "seconds": "שניות"
     },
     "ar_IL": {
         "notifyAllNewUser":"خُذي أمرا بالموافقة على المحادثة للبدَأ بسيرورة المحادثة أو بإجراء المحادثة\n.الزّائرة {0} تنتظرُ المساعدة",
@@ -48,6 +58,11 @@
         "conversationEnded": "שיחתך עם {0} הסתיימה. תודה לך.",
         "pendingUsers": "פניות מחכות בתור: {0}",
         "registeredUsers": "מתנדבות רשומות למערכת: {0}",
-        "userEndConversarion": "הפונה סגר/ה את השיחה. תודה לך."
+        "userEndConversarion": "הפונה סגר/ה את השיחה. תודה לך.",
+        "conversationSummery": " השיחה בין {0} ו{1} הסתיימה עי {2}. השיחה נמשכה {3} וכל צד שלח את כמות ההודעות הבאה:\nמשתמש: {4}\nמתנדב: {5} ",
+        "theUser": "המשתמש",
+        "theVolunteer": "המתנדב",
+        "minutes": "דקות",
+        "seconds": "שניות"
     }
 }

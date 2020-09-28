@@ -116,7 +116,8 @@ const newMsg = async (id, name, msg) => {
         await volunteerDataHandler.sendMessageToVolunteer(volunteer.id, msg)
         await userDataHandler.unassignVolunteerToUser(userId, volunteer.id)
         await sendEndChatToUser(userId, volunteer.name);
-        await historyHandler.setVolunteerEnded(volunteer)
+        await historyHandler.setVolunteerEnded(volunteer);
+        await volunteerDataHandler.sendConversationSummery(userId, volunteer.id, 'theVolunteer');
         const conversationHistory = await historyHandler.getEnhancedConversationHistory(userId);
         await emailClient.send(userId, conversationHistory);
         await analyticsClient.conversationEndedByVolunteer(userId, volunteer.id);
